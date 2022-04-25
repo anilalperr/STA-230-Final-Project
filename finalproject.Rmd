@@ -16,14 +16,16 @@ library(tidyr)
 
 ```{r}
 # import the dataset and replace all the missing values with NAs
-project_dataset = read.csv("Mapping Police Violence.csv", na.strings=c("","NA"))
+first_dataset = read.csv("Mapping Police Violence.csv", na.strings=c("","NA"))
 
 #remove rows with NA values in race and agency_responsible
-project_dataset = filter(project_dataset, race != "Unknown race")
+project_dataset = filter(first_dataset, race != "Unknown race")
 project_dataset = filter(project_dataset, race != "Non-white")
 project_dataset = filter(project_dataset, !is.na(race))
 project_dataset = filter(project_dataset, !is.na(agency_responsible))
 project_dataset = filter(project_dataset, !is.na(pop_white_census_tract))
+project_dataset = filter(project_dataset, !is.na(congressperson_party))
+
 
 # show the distribution of races
 table(project_dataset$race)
