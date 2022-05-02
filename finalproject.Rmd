@@ -19,7 +19,7 @@ library(tidyr)
 project_dataset = read.csv("Mapping Police Violence.csv", na.strings=c("","NA"))
 
 # select the variables of interest
-project_dataset = dplyr::select(project_dataset, gender, age, race, state, agency_responsible, congressional_district_113, latitude, longitude, congressperson_party, pop_total_census_tract, pop_white_census_tract, pop_black_census_tract, pop_asian_census_tract, pop_pacific_islander_census_tract, pop_native_american_census_tract)
+project_dataset = dplyr::select(project_dataset, gender, age, race, state, agency_responsible, congressional_district_113, latitude, longitude, congressperson_party, pop_total_census_tract, pop_white_census_tract, pop_black_census_tract, pop_asian_census_tract, pop_pacific_islander_census_tract, pop_native_american_census_tract, pop_hispanic_census_tract)
 
 #remove rows with NA values and Unknown races
 project_dataset = filter(project_dataset, race != "Unknown race")
