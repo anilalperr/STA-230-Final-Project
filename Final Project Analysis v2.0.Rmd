@@ -1,0 +1,112 @@
+---
+title: "Pre-Analysis Final Project Testing"
+author: "Ellis Chen"
+date: "5/4/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(corrplot)
+library(ggplot2)
+library(caret)
+library(tree)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+C7.IYSdata <- read.csv("~/Downloads/STA-230-Final-Project-main 3/C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+
+
+##OLD: C7.IYSdata = dplyr::select(C7.IYSdata, gender, time.work, time.HW, friends, safe, home.happy, best.school, grades, home.al.drug, time.no.adult, home.chores, home.support)
+
+
+#Filtering for variables of interest
+C7.IYSdata = dplyr::select(C7.IYSdata, gender, time.work, time.HW, friends, safe, home.happy, best.school, grades, home.al.drug, time.no.adult, home.chores, home.support, age, time.excersize, time.school.act, time.noschool.act, hard.work, home.know)
+
+#Splitting into NA and no NA datasets
+project_data = C7.IYSdata
+project_data_no_na = na.omit(C7.IYSdata)
+
+head(project_data)
+
+#Not sure if acceptable: filtering to remove -1 value from homework
+#project_data = dplyr::filter(project_data, project_data$time.HW > -1)
+#project_data_no_na = dplyr::filter(project_data, project_data$time.HW > -1)
+
+
+
+#Old Plots
+# ggplot(project_data, aes(fill=home.happy, x=best.school)) + geom_bar(position='stack')
+# ggplot(project_data, aes(fill=friends, x=best.school)) + geom_bar(position='stack')
+# ggplot(project_data, aes(fill=home.al.drug, x=best.school)) + geom_bar(position='stack')
+
+
+
+#Combining categories:
+#0-2
+project_data$time.HW[project_data$time.HW == "0 hours"] <- "0-2Hours"
+project_data$time.HW[project_data$time.HW == "1-2 hours"] <- "0-2Hours"
+
+#3-11
+project_data$time.HW[project_data$time.HW == "6-10 hours"] <- "3-11Hours"
+project_data$time.HW[project_data$time.HW == "11 or more hours"] <- "3-11Hours"
+project_data$time.HW[project_data$time.HW == "3-5 hours"] <- "3-11Hours"
+
+#Combining categories for no NA:
+#0-2
+project_data_no_na$time.HW[project_data_no_na$time.HW == "0 hours"] <- "0-2Hours"
+project_data_no_na$time.HW[project_data_no_na$time.HW == "1-2 hours"] <- "0-2Hours"
+
+#3-11
+project_data_no_na$time.HW[project_data_no_na$time.HW == "6-10 hours"] <- "3-11Hours"
+project_data_no_na$time.HW[project_data_no_na$time.HW == "11 or more hours"] <- "3-11Hours"
+project_data_no_na$time.HW[project_data_no_na$time.HW == "3-5 hours"] <- "3-11Hours"
+
+#New Kuiper Plots for time.hw
+ggplot(project_data, aes(fill=home.happy, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=gender, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.work, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=friends, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=safe, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=best.school, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=grades, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=home.al.drug, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.no.adult, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=home.chores, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=home.support, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.school.act, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.noschool.act, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=hard.work, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=home.know, x=time.HW)) + geom_bar(position='stack')
+
+#Graphs that were not loading because I think they are numerical
+#ggplot(project_data, aes(fill=age, x=time.HW)) + geom_bar(position='stack')
+#ggplot(project_data, aes(fill=time.excersize, x=time.HW)) + geom_bar(position='stack')
+
+
+
+
+
+```
+
+```{R}
+#Model for with no NA
+set.seed(123)
+trainIndex = createDataPartition(project_data_no_na$time.HW, p = 0.7, list = FALSE, times=1)
+
+projectTrain = project_data_no_na[trainIndex,]
+projectTest = project_data_no_na[-trainIndex,]
+
+project.model = train(time.HW ~., data=projectTrain, ntree=500)
+project.model$finalModel
+
+```
+
+
