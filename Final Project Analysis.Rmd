@@ -21,31 +21,55 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-C7.IYSdata <- read.csv("~/Downloads/STA-230-Final-Project-main 3/C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+#project_data = dplyr::select(C7.IYSdata, gender, time.work, time.HW, friends, safe, home.happy, best.school, grades, home.al.drug, time.no.adult, home.chores, home.support)
 
-C7.IYSdata = dplyr::select(C7.IYSdata, gender, time.work, time.HW, friends, safe, home.happy, best.school, grades, home.al.drug, time.no.adult, home.chores, home.support)
+#Response Variables
+#1. time HW: grade, 
+# important variables:
+#2. best school 
+# important variables:
+#3. grades
+# important variables:
 
-project_data = na.omit(C7.IYSdata)
-head(project_data)
+project_data[project_data == "1-2 hours"] = "2 or less hours"
+project_data[project_data == "0 hours"] = "2 or less hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
 
-ggplot(project_data, aes(fill=home.happy, x=best.school)) + geom_bar(position='stack')
-ggplot(project_data, aes(fill=friends, x=best.school)) + geom_bar(position='stack')
-ggplot(project_data, aes(fill=home.al.drug, x=best.school)) + geom_bar(position='stack')
+project_data[project_data == "Strongly agree"] = "Agree"
+project_data[project_data == "Strongly disagree"] = "Disagree"
 
-
-ggplot(project_data, aes(fill=home.happy, x=time.HW)) + geom_bar(position='stack')
-
+#Stacked bar charts
+ggplot(project_data, aes(fill=grade, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=gender, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.work, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.no.adult, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=live, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=times.moved, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=now.living, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.friend, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.school.act, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.noschool.act, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.reading, x=time.HW)) + geom_bar(position='stack')
+ggplot(project_data, aes(fill=time.church, x=time.HW)) + geom_bar(position='stack')
 ```
 
 ```{R}
 set.seed(123)
-trainIndex = createDataPartition(project_data$best.school, p = 4/5, list = FALSE, times=1)
+sub_project_data = dplyr::select(project_data, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
 
-projectTrain = project_data[trainIndex,]
-projectTest = project_data[-trainIndex,]
+#sub_project_data = na.omit(sub_project_data)
 
-project.model = train(best.school ~., data=projectTrain, ntree=100)
+trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
+
+projectTrain = sub_project_data[trainIndex,]
+projectTest = sub_project_data[-trainIndex,]
+
+project.model = train(time.HW ~., data=projectTrain, ntree=100)
+
+project.pred = predict(project.model, projectTest)
+with(projectTest, table(project.pred, time.HW))
 ```
 
-```{r}
-```
+
