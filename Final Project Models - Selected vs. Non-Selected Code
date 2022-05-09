@@ -1,0 +1,97 @@
+---
+title: "Pre-Analysis Final Project Testing"
+author: "Ellis Chen"
+date: "5/4/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(corrplot)
+library(ggplot2)
+library(caret)
+library(tree)
+library(randomForest)
+```
+
+Selected Variables, NA Omitted
+```{R}
+set.seed(123)
+sub_project_data = dplyr::select(project_data, grade, gender, time.work, time.no.adult, time.school.act, time.noschool.act, time.HW)
+
+sub_project_data = na.omit(sub_project_data)
+
+trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
+
+projectTrain = sub_project_data[trainIndex,]
+projectTest = sub_project_data[-trainIndex,]
+
+project.model = train(time.HW ~., data=projectTrain, ntree=500)
+
+#Evaluation
+project.pred = predict(project.model, projectTrain)
+with(projectTrain, table(project.pred, time.HW))
+
+confusionMatrix(project.model)
+
+ggplot2::ggplot(varImp(project.model, scale = TRUE))
+
+```
+
+
+Selected Variables, NA Included
+```{R}
+set.seed(123)
+sub_project_data = dplyr::select(project_data, grade, gender, time.work, time.no.adult, time.school.act, time.noschool.act, time.HW)
+
+trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
+
+projectTrain = sub_project_data[trainIndex,]
+projectTest = sub_project_data[-trainIndex,]
+
+project.model2 = train(time.HW ~., data=projectTrain, ntree=500)
+
+#Evaluation
+project.pred = predict(project.model2, projectTrain)
+with(projectTrain, table(project.pred, time.HW))
+
+confusionMatrix(project.model2)
+
+ggplot2::ggplot(varImp(project.model2, scale = TRUE))
+
+```
+
+All Cat Variables, NA Omitted
+```{R}
+set.seed(123)
+project_data = select(project_data, -X)
+project_data = select(project_data, -time.excersize)
+
+project_data = na.omit(project_data)
+
+trainIndex = createDataPartition(project_data$time.HW, p = 0.7, list = FALSE, times=1)
+
+projectTrain = project_data[trainIndex,]
+projectTest = project_data[-trainIndex,]
+
+project.model1 = train(time.HW ~., data=projectTrain, ntree=500)
+
+#Evaluation
+project.pred = predict(project.model1, projectTrain)
+with(projectTrain, table(project.pred, time.HW))
+
+confusionMatrix(project.model1)
+
+ggplot2::ggplot(varImp(project.model1, scale = TRUE))
+```
+```{r}
+#FOR ACTUAL TESTING
+#project.pred = predict(project.model, projectTest)
+#with(projectTest, table(project.pred, time.HW))
+```
+
+```{r}
+write.csv(project_data,"FilteredData.csv", row.names = FALSE)
+```
+
