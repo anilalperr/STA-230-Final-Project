@@ -1,0 +1,513 @@
+---
+title: "Pre-Analysis Final Project Testing"
+author: "Ellis Chen"
+date: "5/4/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(corrplot)
+library(ggplot2)
+library(caret)
+library(tree)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+
+#Response Variables
+#1. time HW: grade, 
+# important variables:
+#2. best school 
+# important variables:
+#3. grades
+# important variables:
+
+project_data[project_data == "1-2 hours"] = "2 or less hours"
+project_data[project_data == "0 hours"] = "2 or less hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
+
+project_data[project_data == "Strongly agree"] = "Agree"
+project_data[project_data == "Strongly disagree"] = "Disagree"
+
+
+#Stacked bar charts
+#Change the second parameter of count and fill= command to print out different variables
+#Time.HW vs Grade
+d = project_data %>% dplyr::count(time.HW, grade) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = grade) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs Gender
+d = project_data %>% dplyr::count(time.HW, gender) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = gender) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs Time.work 
+d = project_data %>% dplyr::count(time.HW, time.work) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = time.work) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs time.no.adult
+d = project_data %>% dplyr::count(time.HW, time.no.adult) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = time.no.adult) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs time.school.act
+d = project_data %>% dplyr::count(time.HW, time.school.act) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = time.school.act) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs time.noschool.act 
+d = project_data %>% dplyr::count(time.HW, time.noschool.act) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = time.noschool.act) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs time.reading 
+d = project_data %>% dplyr::count(time.HW, time.reading) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = time.reading) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+
+#Time.HW vs time.church 
+d = project_data %>% dplyr::count(time.HW, time.church) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = time.church) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+
+#Time.HW vs time.excersize 
+d = project_data %>% dplyr::count(time.HW, time.excersize) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = time.excersize) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs time.fruit 
+d = project_data %>% dplyr::count(time.HW, time.fruit) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = time.fruit) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30.smoke 
+d = project_data %>% dplyr::count(time.HW, X30.smoke) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30.smoke) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5)
+
+#Time.HW vs X30.5drinks 
+d = project_data %>% dplyr::count(time.HW, X30.5drinks) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30.5drinks) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30dr.driving 
+d = project_data %>% dplyr::count(time.HW, X30dr.driving) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30dr.driving) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+
+#Time.HW vs X30.cig 
+d = project_data %>% dplyr::count(time.HW, X30.cig) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30.cig) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+
+#Time.HW vs X30cigars 
+d = project_data %>% dplyr::count(time.HW, X30cigars) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30cigars) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30drink 
+d = project_data %>% dplyr::count(time.HW, X30drink) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30drink) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30marijuana 
+d = project_data %>% dplyr::count(time.HW, X30marijuana) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30marijuana) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+
+#Time.HW vs X30glue 
+d = project_data %>% dplyr::count(time.HW, X30glue) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30glue) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+
+#Time.HW vs X30meth 
+d = project_data %>% dplyr::count(time.HW, X30meth) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30meth) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30coke 
+d = project_data %>% dplyr::count(time.HW, X30coke) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30coke) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30amph 
+d = project_data %>% dplyr::count(time.HW, X30amph) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30amph) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30prescription 
+d = project_data %>% dplyr::count(time.HW, X30prescription) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30prescription) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30counter 
+d = project_data %>% dplyr::count(time.HW, X30counter) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30counter) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30chew
+d = project_data %>% dplyr::count(time.HW, X30chew) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30chew) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30steroid 
+d = project_data %>% dplyr::count(time.HW, X30steroid) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30steroid) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs X30barbituates
+d = project_data %>% dplyr::count(time.HW, X30barbituates) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = X30barbituates) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs pride 
+d = project_data %>% dplyr::count(time.HW, pride) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = pride) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs truth 
+d = project_data %>% dplyr::count(time.HW, truth) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = truth) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs values.drug 
+d = project_data %>% dplyr::count(time.HW, values.drug) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = values.drug) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs responsibility
+d = project_data %>% dplyr::count(time.HW, responsibility) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = responsibility) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs friends 
+d = project_data %>% dplyr::count(time.HW, friends) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = friends) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs fix.problems 
+d = project_data %>% dplyr::count(time.HW, fix.problems) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = fix.problems) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs decision 
+d = project_data %>% dplyr::count(time.HW, decision) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = decision) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs excite 
+d = project_data %>% dplyr::count(time.HW, excite) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = excite) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs hard.work 
+d = project_data %>% dplyr::count(time.HW, hard.work) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = hard.work) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs Pop.cig 
+d = project_data %>% dplyr::count(time.HW, Pop.cig) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = Pop.cig) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs Pop.drink 
+d = project_data %>% dplyr::count(time.HW, Pop.drink) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = Pop.drink) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs Pop.marijuana 
+d = project_data %>% dplyr::count(time.HW, Pop.marijuana) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = Pop.marijuana) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs Pop.otherdrug 
+d = project_data %>% dplyr::count(time.HW, Pop.otherdrug) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = Pop.otherdrug) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs safe 
+d = project_data %>% dplyr::count(time.HW, safe) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = safe) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs best.school
+d = project_data %>% dplyr::count(time.HW, best.school) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = best.school) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs talk.adult 
+d = project_data %>% dplyr::count(time.HW, talk.adult) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = talk.adult) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs grades 
+d = project_data %>% dplyr::count(time.HW, grades) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = grades) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.rules 
+d = project_data %>% dplyr::count(time.HW, home.rules) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.rules) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.happy 
+d = project_data %>% dplyr::count(time.HW, home.happy) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.happy) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.al.drug 
+d = project_data %>% dplyr::count(time.HW, home.al.drug) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.al.drug) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.close 
+d = project_data %>% dplyr::count(time.HW, home.close) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.close) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.talk 
+d = project_data %>% dplyr::count(time.HW, home.talk) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.talk) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.support 
+d = project_data %>% dplyr::count(time.HW, home.support) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.support) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.know 
+d = project_data %>% dplyr::count(time.HW, home.know) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.know) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.chores 
+d = project_data %>% dplyr::count(time.HW, home.chores) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.chores) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.wrong 
+d = project_data %>% dplyr::count(time.HW, home.wrong) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.wrong) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs home.praise 
+d = project_data %>% dplyr::count(time.HW, home.praise) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = home.praise) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs Wpdrink 
+d = project_data %>% dplyr::count(time.HW, Wpdrink) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = Wpdrink) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+
+#Time.HW vs N.safe 
+d = project_data %>% dplyr::count(time.HW, N.safe) %>% group_by(time.HW)
+d$sum_group = ave(d$n, d$time.HW, FUN=sum)
+d = mutate(d, percentages = paste0(round(n/sum_group * 100), "%")) 
+ggplot(d) + aes(time.HW, n, fill = N.safe) + 
+geom_col(width = .7) + 
+geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
+```
+
+```{R}
+#grade, gender, time.work, time.no.adult, time.school.act, time.reading
+set.seed(123)
+sub_project_data = dplyr::select(project_data, grade, gender, time.work, time.no.adult, time.school.act, time.reading, time.HW)
+
+#sub_project_data = na.omit(sub_project_data)
+
+trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
+
+projectTrain = sub_project_data[trainIndex,]
+projectTest = sub_project_data[-trainIndex,]
+
+project.model = train(time.HW ~., data=projectTrain, ntree=100)
+
+project.pred = predict(project.model, projectTest)
+with(projectTest, table(project.pred, time.HW))
+```
+
+```{r}
+write.csv(project_data,"FilteredData.csv", row.names = FALSE)
+```
+
