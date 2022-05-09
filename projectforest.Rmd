@@ -1,0 +1,125 @@
+---
+title: "Pre-Analysis Final Project Testing"
+author: "Ellis Chen"
+date: "5/4/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(corrplot)
+library(ggplot2)
+library(caret)
+library(tree)
+```
+
+```{r}
+project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+project_data = dplyr::select(project_data, gender, time.work, time.HW, friends, safe, home.happy, best.school, grades, home.al.drug, time.no.adult, home.chores, home.support)
+
+project_data[is.na(project_data)] = "Not found"
+
+#Response Variables
+#1. time HW: grade, 
+# important variables:
+#2. best school 
+# important variables:
+#3. grades
+# important variables:
+
+project_data[project_data == "1-2 hours"] = "2 or less hours"
+project_data[project_data == "0 hours"] = "2 or less hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
+
+project_data[project_data == "Strongly agree"] = "Agree"
+project_data[project_data == "Strongly disagree"] = "Disagree"
+```
+
+```{R}
+set.seed(123)
+#sub_project_data = dplyr::select(project_data, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
+
+#sub_project_data = na.omit(sub_project_data)
+
+trainIndex = createDataPartition(project_data$time.HW, p = 0.7, list = FALSE, times=1)
+
+projectTrain = project_data[trainIndex,]
+
+projectTest = project_data[-trainIndex,]
+
+#project.model = train(time.HW ~., data=projectTrain, ntree=100)
+
+#project.pred = predict(project.model, projectTest)
+#with(projectTest, table(project.pred, time.HW))
+
+```
+
+```{r}
+numeric_data = project_data
+numeric_data = transform(numeric_data, gender = factor(gender, 
+       levels = c("Male", "Female"),
+       labels = c(0, 1)))
+numeric_data = transform(numeric_data, time.work = factor(time.work, 
+       levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
+       labels = c(2, 4, 6, -1)))
+
+numeric_data = transform(numeric_data, time.HW = factor(time.HW, 
+       levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
+       labels = c(2, 4, 6, -1)))
+
+numeric_data = transform(numeric_data, time.work = factor(friends, 
+       levels = c("Agree", "Disagree", "Not found"),
+       labels = c(1, 0, -1)))
+
+numeric_data = transform(numeric_data, safe = factor(safe, 
+       levels = c("Agree", "Disagree", "Not found"),
+       labels = c(1, 0, -1)))
+
+numeric_data = transform(numeric_data, home.happy = factor(home.happy, 
+       levels = c("Agree", "Disagree", "Not found"),
+       labels = c(1, 0, -1)))
+
+numeric_data = transform(numeric_data, friends = factor(friends, 
+       levels = c("Agree", "Disagree", "Not found"),
+       labels = c(1, 0, -1)))
+
+numeric_data = transform(numeric_data, best.school = factor(best.school, 
+       levels = c("Agree", "Disagree", "Not found"),
+       labels = c(1, 0, -1)))
+
+numeric_data = transform(numeric_data, grades = factor(grades, 
+       levels = c("Average", "Above average", "Excellent", "Below average", "Not found"),
+       labels = c(1, 2, 3, 0, -1)))
+
+numeric_data = transform(numeric_data, home.al.drug = factor(home.al.drug, 
+       levels = c("Agree", "Disagree", "Not found"),
+       labels = c(1, 0, -1)))
+
+numeric_data = transform(numeric_data, time.no.adult = factor(time.no.adult, 
+       levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
+       labels = c(2, 4, 6, -1)))
+
+numeric_data = transform(numeric_data, home.support = factor(home.support, 
+       levels = c("Agree", "Disagree", "Not found"),
+       labels = c(1, 0, -1)))
+
+numeric_data = transform(numeric_data, home.chores = factor(home.chores, 
+       levels = c("Never", "Sometimes", "Often", "Always", "Not found"),
+       labels = c(0, 1, 2, 3, -1)))
+
+numeric_data[is.na(numeric_data)] = -1
+
+```
+
+```{r}
+trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
+
+numericTrain = numeric_data[trainIndex,]
+
+forest = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 10, mtry = 2, do.trace = TRUE)
+
+varImpPlot(forest, sort=TRUE)
+```
+
