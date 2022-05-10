@@ -25,18 +25,17 @@ project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
 
 #Response Variables
 #1. time HW: grade, gender, time.work, time.no.adult, time.school.act, time.noschool.act 
-# -> (64% accuracy)
+# -> (57.5% accuracy)
 # important variables:
 #2. best school 
 # important variables:
 #3. grades
 # important variables:
 
-project_data[project_data == "1-2 hours"] = "Less than 3 hours"
-project_data[project_data == "0 hours"] = "Less than 3 hours"
-project_data[project_data == "3-5 hours"] = "3 or more hours"
-project_data[project_data == "6-10 hours"] = "3 or more hours"
-project_data[project_data == "11 or more hours"] = "3 or more hours"
+project_data[project_data == "1-2 hours"] = "2 or less hours"
+project_data[project_data == "0 hours"] = "2 or less hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
 project_data[project_data == "-1"] = NA
 
 
@@ -495,7 +494,7 @@ geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size
 
 ```{R}
 set.seed(123)
-sub_project_data = dplyr::select(project_data, grade, gender, time.work, time.no.adult, time.school.act, time.noschool.act, time.HW)
+sub_project_data = dplyr::select(project_data, grade, gender, time.no.adult, time.reading, time.school.act, time.noschool.act, time.HW)
 
 sub_project_data = na.omit(sub_project_data)
 
@@ -504,7 +503,7 @@ trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE
 projectTrain = sub_project_data[trainIndex,]
 projectTest = sub_project_data[-trainIndex,]
 
-project.model = train(time.HW ~., data=projectTrain, ntree=30)
+project.model = train(time.HW ~., data=projectTrain, ntree=100)
 
 project.pred = predict(project.model, projectTest)
 with(projectTest, table(project.pred, time.HW))
