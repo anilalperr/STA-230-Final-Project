@@ -1,0 +1,40 @@
+---
+title: "Data Cleaning File"
+output: html_document
+date: '2022-05-10'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(corrplot)
+library(ggplot2)
+library(caret)
+library(tree)
+library(readr)
+```
+
+```{r}
+project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+
+#Response Variables
+#1. time HW: grade, gender, time.work, time.no.adult, time.school.act, time.noschool.act 
+# -> (64% accuracy)
+# important variables:
+#2. best school 
+# important variables:
+#3. grades
+# important variables:
+
+project_data[project_data == "1-2 hours"] = "Less than 2 hours"
+project_data[project_data == "0 hours"] = "Less than 2 hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
+project_data[project_data == "-1"] = NA
+
+
+#project_data[project_data == "Strongly agree"] = "Agree"
+#project_data[project_data == "Strongly disagree"] = "Disagree"
+
+write.csv(project_data, "FilteredData.csv", row.names = FALSE)
+```
