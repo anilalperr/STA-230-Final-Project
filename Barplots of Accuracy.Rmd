@@ -1,0 +1,33 @@
+---
+title: "Barplots of Accuracy"
+author: "Ellis Chen"
+date: "5/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(corrplot)
+library(ggplot2)
+library(caret)
+library(tree)
+library(readr)
+```
+
+```{r}
+FilteredData <- read.csv("~/FilteredData.csv", header=TRUE)
+
+Model <- c("Restricted Variables, NA Omitted", "All Variables, NA Omitted")
+Accuracy <- c(0.5733, 0.5548)
+
+df <- data.frame(Name, Accuracy)
+
+print (df)
+p<-ggplot(data=df, aes(x=Name, y=Accuracy)) +
+  geom_bar(stat="identity") +
+  ylim(0, .8) + 
+  coord_cartesian(ylim=c(.5, .8))
+
+p
+```
+
