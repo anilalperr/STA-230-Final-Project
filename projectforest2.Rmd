@@ -61,7 +61,7 @@ with(projectTest, table(project.pred, time.HW))
 
 project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
 project_data = dplyr::select(project_data, gender, time.reading, time.HW, grade, time.no.adult, time.noschool.act, time.school.act)
-
+project_data = subset(project_data, !is.na(time.HW))
 project_data[is.na(project_data)] = "Not found"
 
 project_data[project_data == "1-2 hours"] = "2 or less hours"
