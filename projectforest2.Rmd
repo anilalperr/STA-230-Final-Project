@@ -18,9 +18,7 @@ library(datasets)
 ```{r}
 project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
 project_data = dplyr::select(project_data, gender, time.reading, time.HW, grade, time.no.adult, time.noschool.act, time.school.act)
-
 #project_data[is.na(project_data)] = "Not found"
-
 #Response Variables
 #1. time HW: grade, 
 # important variables:
@@ -28,7 +26,6 @@ project_data = dplyr::select(project_data, gender, time.reading, time.HW, grade,
 # important variables:
 #3. grades
 # important variables:
-
 project_data[project_data == "1-2 hours"] = "2 or less hours"
 project_data[project_data == "0 hours"] = "2 or less hours"
 project_data[project_data == "6-10 hours"] = "6 or more hours"
@@ -40,66 +37,49 @@ project_data[project_data == "Strongly disagree"] = "Disagree"
 ```{R}
 set.seed(123)
 #sub_project_data = dplyr::select(project_data, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
-
 #sub_project_data = na.omit(sub_project_data)
-
 trainIndex = createDataPartition(project_data$time.HW, p = 0.7, list = FALSE, times=1)
-
 projectTrain = project_data[trainIndex,]
-
 projectTest = project_data[-trainIndex,]
-
 project.model = train(time.HW ~., data=projectTrain, ntree=10)
-
 project.pred = predict(project.model, projectTest)
 with(projectTest, table(project.pred, time.HW))
-
 ```
 
 ```{r}
 #With NA values
-
 project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
 project_data = dplyr::select(project_data, gender, time.reading, time.HW, grade, time.no.adult, time.noschool.act, time.school.act)
 project_data = subset(project_data, !is.na(time.HW))
 project_data[is.na(project_data)] = "Not found"
-
 project_data[project_data == "1-2 hours"] = "2 or less hours"
 project_data[project_data == "0 hours"] = "2 or less hours"
 project_data[project_data == "6-10 hours"] = "6 or more hours"
 project_data[project_data == "11 or more hours"] = "6 or more hours"
 project_data[project_data == "Strongly agree"] = "Agree"
 project_data[project_data == "Strongly disagree"] = "Disagree"
-
 numeric_data = subset(project_data, !is.na(time.HW))
 numeric_data = transform(numeric_data, gender = factor(gender, 
        levels = c("Male", "Female"),
        labels = c(0, 1)))
-
 numeric_data = transform(numeric_data, time.HW = factor(time.HW, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
        labels = c(2, 4, 6, -1)))
-
 numeric_data = transform(numeric_data, time.reading = factor(time.reading, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
        labels = c(2, 4, 6, -1)))
-
 numeric_data = transform(numeric_data, time.noschool.act = factor(time.noschool.act, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
        labels = c(2, 4, 6, -1)))
-
 numeric_data = transform(numeric_data, time.school.act = factor(time.school.act, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
        labels = c(2, 4, 6, -1)))
-
 numeric_data = transform(numeric_data, grade = factor(grade, 
        levels = c("6th", "7th", "8th", "9th", "10th", "11th", "Not Found"),
        labels = c(6, 7, 8, 9, 10, 11, -1)))
-
 numeric_data = transform(numeric_data, time.no.adult = factor(time.no.adult, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
        labels = c(2, 4, 6, -1)))
-
 numeric_data[is.na(numeric_data)] = -1
 ```
 
@@ -108,8 +88,21 @@ trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, ti
 
 numericTrain = numeric_data[trainIndex,]
 
-forest = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
+forest2 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 2, do.trace = TRUE)
+#mtry = 2 is best accuracy 
+forest5 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 5, do.trace = TRUE)
+forest6 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 6, do.trace = TRUE)
+#forest10 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 10, do.trace = TRUE)
+varImpPlot(forest2, sort=TRUE)
+varImpPlot(forest5, sort=TRUE)
+varImpPlot(forest6, sort=TRUE)
+#varImpPlot(forest10, sort=TRUE)
+```
 
+```{r}
+trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
+numericTrain = numeric_data[trainIndex,]
+forest = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
 varImpPlot(forest, sort=TRUE)
 ```
 
@@ -130,41 +123,31 @@ project_data[project_data == "Strongly disagree"] = "Disagree"
 numeric_data = transform(project_data, gender = factor(gender, 
        levels = c("Male", "Female"),
        labels = c(0, 1)))
-
 numeric_data = transform(numeric_data, time.HW = factor(time.HW, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours"),
        labels = c(2, 4, 6)))
-
 numeric_data = transform(numeric_data, time.reading = factor(time.reading, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours"),
        labels = c(2, 4, 6)))
-
 numeric_data = transform(numeric_data, time.noschool.act = factor(time.noschool.act, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours"),
        labels = c(2, 4, 6)))
-
 numeric_data = transform(numeric_data, time.school.act = factor(time.school.act, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours"),
        labels = c(2, 4, 6)))
-
 numeric_data = transform(numeric_data, grade = factor(grade, 
        levels = c("6th", "7th", "8th", "9th", "10th", "11th"),
        labels = c(6, 7, 8, 9, 10, 11)))
-
 numeric_data = transform(numeric_data, time.no.adult = factor(time.no.adult, 
        levels = c("2 or less hours", "3-5 hours", "6 or more hours"),
        labels = c(2, 4, 6)))
-
 numeric_data = na.omit(numeric_data)
 ```
 
 ```{r}
 trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
-
 numericTrain = numeric_data[trainIndex,]
-
-forest = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
-
+forest = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 2, do.trace = TRUE)
 varImpPlot(forest, sort=TRUE)
 ```
 
@@ -177,22 +160,30 @@ project_data[project_data == "1-2 hours"] = "2 or less hours"
 project_data[project_data == "0 hours"] = "2 or less hours"
 project_data[project_data == "6-10 hours"] = "6 or more hours"
 project_data[project_data == "11 or more hours"] = "6 or more hours"
-
 project_data[project_data == "Strongly agree"] = "Agree"
 project_data[project_data == "Strongly disagree"] = "Disagree"
 sub_project_data = dplyr::select(project_data, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
-
 #sub_project_data = na.omit(sub_project_data)
-
 trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
-
 projectTrain = sub_project_data[trainIndex,]
-
 projectTest = sub_project_data[-trainIndex,]
-
 project.model = train(time.HW ~., data=projectTrain, ntree=100)
-
 project.pred = predict(project.model, projectTest)
 with(projectTest, table(project.pred, time.HW))
-
 ```
+
+```{r}
+trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
+
+numericTrain = numeric_data[trainIndex,]
+
+forest2 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 2, do.trace = TRUE)
+forest5 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 5, do.trace = TRUE)
+forest7 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 7, do.trace = TRUE)
+forest10 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 10, do.trace = TRUE)
+varImpPlot(forest2, sort=TRUE)
+varImpPlot(forest5, sort=TRUE)
+varImpPlot(forest7, sort=TRUE)
+varImpPlot(forest10, sort=TRUE)
+```
+
