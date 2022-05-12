@@ -176,7 +176,7 @@ with(projectTest, table(project.pred, time.HW))
 trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
 
 numericTrain = numeric_data[trainIndex,]
-
+#mtry = 2 with NAs is best
 forest2 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 2, do.trace = TRUE)
 forest5 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 5, do.trace = TRUE)
 forest7 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 7, do.trace = TRUE)
