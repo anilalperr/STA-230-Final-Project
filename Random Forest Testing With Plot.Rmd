@@ -62,6 +62,7 @@ numeric_data = transform(numeric_data, time.no.adult = factor(time.no.adult,
 #numeric_data[is.na(numeric_data)] = -1
 ```
 
+WITH NA
 ```{r}
 set.seed(123)
 knitr::opts_chunk$set(cache = T)
@@ -71,6 +72,7 @@ set.seed(123)
 trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
 
 numericTrain = numeric_data[trainIndex,]
+numericTest = numeric_data[-trainIndex,]
 
 #Creating the random forests with varying mtry values (changes the number of variables at the split)
 forest1 = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 1, do.trace = TRUE, set.seed(123))
@@ -105,18 +107,19 @@ forest8
 
 
 #Printing variable importance plots for the most promising variables
-varImpPlot(forest1, sort=TRUE)
-varImpPlot(forest2, sort=TRUE)
-varImpPlot(forest3, sort=TRUE)
-varImpPlot(forest4, sort=TRUE)
+varImpPlot1 = varImpPlot(forest1, sort=TRUE)
+varImpPlot2 = varImpPlot(forest2, sort=TRUE)
+varImpPlot3 = varImpPlot(forest3, sort=TRUE)
+varImpPlot4 = varImpPlot(forest4, sort=TRUE)
 #varImpPlot(forest10, sort=TRUE)
 
 #Creating data frame based on the model accuracy
 df <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8),
                   OOBError = c(42.48, 42.4, 43.46, 44.56, 44.99, 45.3, 45.26, 46.16)
                   )
-#Plotting the model accuracy
-AccuracyPlot = ggplot(df, aes(x=mtry, y=OOBError, label=OOBError)) +
+
+#Plotting the model accuracy with OOB Error
+AccuracyPlotNA = ggplot(df, aes(x=mtry, y=OOBError, label=OOBError)) +
   geom_point(size=2, shape=1, stroke = 1) +
   geom_text(hjust=1.25, vjust=.5) +
   scale_x_continuous(breaks = seq(-1, 8, by = 1), name = "Number of Variables") +
@@ -124,10 +127,63 @@ AccuracyPlot = ggplot(df, aes(x=mtry, y=OOBError, label=OOBError)) +
   coord_cartesian(xlim=c(0.5,10)) +
   ggtitle("Out of Bag Error and Number of Variables Sampled at Splits") 
 
-AccuracyPlot
+AccuracyPlotNA
 ```
 Evaluation Stuff
 ```{r}
+predictions1 <- as.numeric(predict(forest1, numericTrain, type = 'response'))
+roc.multi1 <- multiclass.roc(numericTrain$time.HW, predictions1, 
+                            percent=TRUE)
+
+predictions2 <- as.numeric(predict(forest2, numericTrain, type = 'response'))
+roc.multi2 <- multiclass.roc(numericTrain$time.HW, predictions2, 
+                            percent=TRUE)
+
+predictions3 <- as.numeric(predict(forest3, numericTrain, type = 'response'))
+roc.multi3 <- multiclass.roc(numericTrain$time.HW, predictions3, 
+                            percent=TRUE)
+
+predictions4 <- as.numeric(predict(forest4, numericTrain, type = 'response'))
+roc.multi4 <- multiclass.roc(numericTrain$time.HW, predictions4, 
+                            percent=TRUE)
+
+predictions5 <- as.numeric(predict(forest5, numericTrain, type = 'response'))
+roc.multi5 <- multiclass.roc(numericTrain$time.HW, predictions5, 
+                            percent=TRUE)
+
+predictions6 <- as.numeric(predict(forest6, numericTrain, type = 'response'))
+roc.multi6 <- multiclass.roc(numericTrain$time.HW, predictions6, 
+                            percent=TRUE)
+
+predictions7 <- as.numeric(predict(forest7, numericTrain, type = 'response'))
+roc.multi7 <- multiclass.roc(numericTrain$time.HW, predictions7, 
+                            percent=TRUE)
+
+predictions8 <- as.numeric(predict(forest8, numericTrain, type = 'response'))
+roc.multi8 <- multiclass.roc(numericTrain$time.HW, predictions8, 
+                            percent=TRUE)
+
+aucdf <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8),
+                  MulticlassAUC = c(roc.multi1$auc, roc.multi2$auc, roc.multi3$auc, roc.multi4$auc, roc.multi5$auc, roc.multi6$auc, roc.multi7$auc, roc.multi8$auc)
+                  )
+aucdf
+
+AUCPlotNa = ggplot(aucdf, aes(x=mtry, y=MulticlassAUC)) +
+  geom_point(size=2, shape=1, stroke = 1) +
+  #geom_text(hjust=.5, vjust=1) +
+  scale_x_continuous(breaks = seq(-1, 8, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "AUC") +
+  coord_cartesian(xlim=c(0.5,10)) +
+  ggtitle("AUC and Number of Variables Sampled at Splits, NA") 
+
+AUCPlotNa
+
+
+##wack
+rs <- roc.multi[['rocs']]
+plot.roc(rs[[2]])
+sapply(2:length(rs),function(i) lines.roc(rs[[i]],col=i))
+
 # result.roc1 <- roc(numericTrain$time.HW, predictions1$`2 or less hours`)
 # result.roc3 <- roc(projectTrain$time.HW, project.pred1$`3-5 hours`)
 # result.roc4 <- roc(projectTrain$time.HW, project.pred1$`6 or more hours`)
@@ -143,23 +199,26 @@ auc3 = auc(projectTrain$time.HW, project.pred1$`3-5 hours`)
 auc4 = auc(projectTrain$time.HW, project.pred1$`6 or more hours`)
 ```
 
-Other Tests
 ```{r}
-trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
-numericTrain = numeric_data[trainIndex,]
-forest = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
-varImpPlot(forest, sort=TRUE)
+# set.seed(123)
+# trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
+# numericTrain = numeric_data[trainIndex,]
+# forest = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
+# varImpPlot(forest, sort=TRUE)
 ```
 
 ```{r}
 # Without NA values
-project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+project_data <- read.csv("~/Downloads/STA-230-Final-Project-main 11/C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
 project_data = dplyr::select(project_data, gender, time.reading, time.HW, grade, time.no.adult, time.noschool.act, time.school.act, time.work, time.church)
-project_data = na.omit(project_data)
+
 project_data[project_data == "1-2 hours"] = "2 or less hours"
 project_data[project_data == "0 hours"] = "2 or less hours"
 project_data[project_data == "6-10 hours"] = "6 or more hours"
 project_data[project_data == "11 or more hours"] = "6 or more hours"
+
+project_data = subset(project_data, !is.na(time.HW))
+
 ```
 
 ```{r}
@@ -188,12 +247,91 @@ numeric_data = na.omit(numeric_data)
 ```
 
 ```{r}
+set.seed(123)
 trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
-numericTrain = numeric_data[trainIndex,]
-forest = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 2, do.trace = TRUE)
-varImpPlot(forest, sort=TRUE)
-```
 
+numericTrain = numeric_data[trainIndex,]
+numericTrain = na.omit(numericTrain)
+
+numericTest = numeric_data[-trainIndex,]
+numericTest = na.omit(numericTest)
+
+forest1nona = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 1, do.trace = TRUE, set.seed(123))
+forest2nona = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 2, do.trace = TRUE, set.seed(123))
+forest3nona = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 3, do.trace = TRUE, set.seed(123))
+forest4nona = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 4, do.trace = TRUE, set.seed(123))
+forest5nona = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 5, do.trace = TRUE, set.seed(123))
+forest6nona = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 6, do.trace = TRUE, set.seed(123))
+forest7nona = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 7, do.trace = TRUE,set.seed(123))
+forest8nona = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 1000, mtry = 8, do.trace = TRUE, set.seed(123))
+
+varImpPlot(forest1nona, sort=TRUE)
+
+
+df2 <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8),
+                  OOBError = c(43.08, 41.38, 42.52, 43.73, 43.99, 44.3, 44.17, 44.95)
+                  )
+
+#Plotting the model accuracy
+AccuracyPlotNoNA = ggplot(df2, aes(x=mtry, y=OOBError, label=OOBError)) +
+  geom_point(size=2, shape=1, stroke = 1) +
+  geom_text(hjust=1.25, vjust=.5) +
+  scale_x_continuous(breaks = seq(-1, 8, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "Out of Bag Error (%)") +
+  coord_cartesian(xlim=c(0.5,10)) +
+  ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (NA Removed)") 
+
+AccuracyPlotNoNA
+```
+```{r}
+
+predictions1nona <- as.numeric(predict(forest1nona, numericTrain, type = 'response'))
+roc.multi1nona <- multiclass.roc(numericTrain$time.HW, predictions1nona, 
+                            percent=TRUE)
+
+predictions2nona <- as.numeric(predict(forest2nona, numericTrain, type = 'response'))
+roc.multi2nona <- multiclass.roc(numericTrain$time.HW, predictions2nona, 
+                            percent=TRUE)
+
+predictions3nona <- as.numeric(predict(forest3nona, numericTrain, type = 'response'))
+roc.multi3nona <- multiclass.roc(numericTrain$time.HW, predictions3nona, 
+                            percent=TRUE)
+
+predictions4nona <- as.numeric(predict(forest4nona, numericTrain, type = 'response'))
+roc.multi4nona <- multiclass.roc(numericTrain$time.HW, predictions4nona, 
+                            percent=TRUE)
+
+predictions5nona <- as.numeric(predict(forest5nona, numericTrain, type = 'response'))
+roc.multi5nona <- multiclass.roc(numericTrain$time.HW, predictions5nona, 
+                            percent=TRUE)
+
+predictions6nona <- as.numeric(predict(forest6nona, numericTrain, type = 'response'))
+roc.multi6nona <- multiclass.roc(numericTrain$time.HW, predictions6nona, 
+                            percent=TRUE)
+
+predictions7nona <- as.numeric(predict(forest7nona, numericTrain, type = 'response'))
+roc.multi7nona <- multiclass.roc(numericTrain$time.HW, predictions7nona, 
+                            percent=TRUE)
+
+predictions8nona <- as.numeric(predict(forest8nona, numericTrain, type = 'response'))
+roc.multi8nona <- multiclass.roc(numericTrain$time.HW, predictions8nona, 
+                            percent=TRUE)
+
+aucdf_nona <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8),
+                  MulticlassAUC = c(roc.multi1nona$auc, roc.multi2nona$auc, roc.multi3nona$auc, roc.multi4nona$auc, roc.multi5nona$auc, roc.multi6nona$auc, roc.multi7nona$auc, roc.multi8nona$auc)
+                  )
+aucdf_nona
+
+AUCPlotNoNa = ggplot(aucdf_nona, aes(x=mtry, y=MulticlassAUC)) +
+  geom_point(size=2, shape=1, stroke = 1) +
+  #geom_text(hjust=.5, vjust=1) +
+  scale_x_continuous(breaks = seq(-1, 8, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "AUC") +
+  coord_cartesian(xlim=c(0.5,10)) +
+  ggtitle("AUC and Number of Variables Sampled at Splits, NA Removed") 
+
+AUCPlotNoNa
+```
 
 ```{R}
 set.seed(123)
