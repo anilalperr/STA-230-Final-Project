@@ -1,0 +1,170 @@
+---
+title: "All Variable Analysis"
+output: html_document
+date: '2022-05-13'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(corrplot)
+library(ggplot2)
+library(caret)
+library(tree)
+library(datasets)
+library(randomForest)
+library(pROC)
+library(tidyr)
+```
+
+```{r}
+project_data_all <- read.csv("~/Downloads/STA-230-Final-Project-main 11/C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
+
+project_data_all[project_data_all == "1-2 hours"] = "2 or less hours"
+project_data_all[project_data_all == "0 hours"] = "2 or less hours"
+project_data_all[project_data_all == "6-10 hours"] = "6 or more hours"
+project_data_all[project_data_all == "11 or more hours"] = "6 or more hours"
+
+project_data_all = subset(project_data_all, !is.na(time.HW))
+project_data_all[is.na(project_data_all)] = "NA"
+```
+
+```{r}
+set.seed(123)
+trainIndex = createDataPartition(project_data_all$time.HW, p = 0.7, list = FALSE, times=1)
+
+numericTrainAll = project_data_all[trainIndex,]
+numericTestAll = project_data_all[-trainIndex,]
+
+```
+
+```{r}
+numericTrainAll$time.HW = factor(numericTrainAll$time.HW) 
+
+forestAll1 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 1, do.trace = TRUE, set.seed(123))
+
+forestAll2 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 2, do.trace = TRUE, set.seed(123))
+
+forestAll3 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 3, do.trace = TRUE, set.seed(123))
+
+forestAll4 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 4, do.trace = TRUE, set.seed(123))
+
+forestAll5 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 5, do.trace = TRUE, set.seed(123))
+
+forestAll6 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 6, do.trace = TRUE, set.seed(123))
+
+forestAll7 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 7, do.trace = TRUE, set.seed(123))
+
+forestAll8 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 8, do.trace = TRUE, set.seed(123))
+
+forestAll9 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 9, do.trace = TRUE, set.seed(123))
+
+forestAll10 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 10, do.trace = TRUE, set.seed(123))
+
+forestAll11 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 11, do.trace = TRUE, set.seed(123))
+
+forestAll12 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 12, do.trace = TRUE, set.seed(123))
+
+forestAll13 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 13, do.trace = TRUE, set.seed(123))
+
+forestAll14 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 14, do.trace = TRUE, set.seed(123))
+
+forestAll15 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 15, do.trace = TRUE, set.seed(123))
+
+```
+Plotting Accuracy 
+```{r}
+AllDf <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+                  OOBError = c(43.5, 41.82, 41.31, 41.15, 41.03, 41.15, 40.88, 41.11, 40.76, 41.11, 41.43, 41.5, 41.62, 40.84, 41.97)
+                  )
+
+AccuracyPlotAll = ggplot(AllDf, aes(x=mtry, y=OOBError)) +
+  geom_point(size=2, shape=1, stroke = 1) +
+  #geom_text(hjust=1.25, vjust=0) +
+  scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "Out of Bag Error (%)") +
+  coord_cartesian(xlim=c(0.5,15)) +
+  ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (All Variables)") 
+
+AccuracyPlotAll
+```
+AUC Plot
+```{r}
+
+predictionsAll1 <- as.numeric(predict(forestAll1, numericTrainAll, type = 'response'))
+roc.multiAll1 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll1, 
+                            percent=TRUE)
+
+predictionsAll2 <- as.numeric(predict(forestAll2, numericTrainAll, type = 'response'))
+roc.multiAll2 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll2, 
+                            percent=TRUE)
+
+predictionsAll3 <- as.numeric(predict(forestAll3, numericTrainAll, type = 'response'))
+roc.multiAll3 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll3, 
+                            percent=TRUE)
+
+predictionsAll4 <- as.numeric(predict(forestAll4, numericTrainAll, type = 'response'))
+roc.multiAll4 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll4, 
+                            percent=TRUE)
+
+predictionsAll5 <- as.numeric(predict(forestAll5, numericTrainAll, type = 'response'))
+roc.multiAll5 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll5, 
+                            percent=TRUE)
+
+predictionsAll6 <- as.numeric(predict(forestAll6, numericTrainAll, type = 'response'))
+roc.multiAll6 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll6, 
+                            percent=TRUE)
+
+predictionsAll7 <- as.numeric(predict(forestAll7, numericTrainAll, type = 'response'))
+roc.multiAll7 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll7, 
+                            percent=TRUE)
+
+predictionsAll8 <- as.numeric(predict(forestAll8, numericTrainAll, type = 'response'))
+roc.multiAll8 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll8, 
+                            percent=TRUE)
+
+predictionsAll9 <- as.numeric(predict(forestAll9, numericTrainAll, type = 'response'))
+roc.multiAll9 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll9, 
+                            percent=TRUE)
+
+predictionsAll10 <- as.numeric(predict(forestAll10, numericTrainAll, type = 'response'))
+roc.multiAll10 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll10, 
+                            percent=TRUE)
+
+predictionsAll11 <- as.numeric(predict(forestAll11, numericTrainAll, type = 'response'))
+roc.multiAll11 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll11, 
+                            percent=TRUE)
+
+predictionsAll12 <- as.numeric(predict(forestAll12, numericTrainAll, type = 'response'))
+roc.multiAll12 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll12, 
+                            percent=TRUE)
+
+predictionsAll13 <- as.numeric(predict(forestAll13, numericTrainAll, type = 'response'))
+roc.multiAll13 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll13, 
+                            percent=TRUE)
+
+predictionsAll14 <- as.numeric(predict(forestAll14, numericTrainAll, type = 'response'))
+roc.multiAll14 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll14, 
+                            percent=TRUE)
+
+predictionsAll15 <- as.numeric(predict(forestAll15, numericTrainAll, type = 'response'))
+roc.multiAll15 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll15, 
+                            percent=TRUE)
+
+AucdfAll <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+                  MulticlassAUC = c(roc.multiAll1$auc, roc.multiAll2$auc, roc.multiAll3$auc, roc.multiAll4$auc, roc.multiAll5$auc, roc.multiAll6$auc, roc.multiAll7$auc, roc.multiAll8$auc, roc.multiAll9$auc, roc.multiAll10$auc, roc.multiAll11$auc, roc.multiAll12$auc, roc.multiAll13$auc, roc.multiAll14$auc, roc.multiAll15$auc)
+                  )
+AucdfAll
+
+AUCPlotAll = ggplot(AucdfAll, aes(x=mtry, y=MulticlassAUC)) +
+  geom_point(size=2, shape=1, stroke = 1) +
+  #geom_text(hjust=.5, vjust=1) +
+  scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "AUC") +
+  coord_cartesian(xlim=c(0.5,15)) +
+  ggtitle("AUC and Number of Variables Sampled at Splits, All") 
+
+AUCPlotAll
+print("How is this possible?")
+```
+
