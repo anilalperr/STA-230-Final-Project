@@ -27,6 +27,7 @@ project_data_all[project_data_all == "11 or more hours"] = "6 or more hours"
 
 project_data_all = subset(project_data_all, !is.na(time.HW))
 project_data_all[is.na(project_data_all)] = "NA"
+
 ```
 
 ```{r}
@@ -78,9 +79,9 @@ AllDf <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
                   OOBError = c(43.5, 41.82, 41.31, 41.15, 41.03, 41.15, 40.88, 41.11, 40.76, 41.11, 41.43, 41.5, 41.62, 40.84, 41.97)
                   )
 
-AccuracyPlotAll = ggplot(AllDf, aes(x=mtry, y=OOBError)) +
+AccuracyPlotAll = ggplot(AllDf, aes(x=mtry, y=OOBError, label=OOBError)) +
   geom_point(size=2, shape=1, stroke = 1) +
-  #geom_text(hjust=1.25, vjust=0) +
+  geom_text(hjust=1.25, vjust=0) +
   scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
   scale_y_continuous(name = "Out of Bag Error (%)") +
   coord_cartesian(xlim=c(0.5,15)) +
@@ -167,4 +168,67 @@ AUCPlotAll = ggplot(AucdfAll, aes(x=mtry, y=MulticlassAUC)) +
 AUCPlotAll
 print("How is this possible?")
 ```
+Selected Variables
+```{r}
+numericTrainSelected = select(numericTrainAll, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
 
+numericTestSelected = select(numericTestAll, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
+
+
+forestSelect1 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 1, do.trace = TRUE, set.seed(123))
+
+forestSelect2 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 2, do.trace = TRUE, set.seed(123))
+
+forestSelect3 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 3, do.trace = TRUE, set.seed(123))
+
+forestSelect4 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 4, do.trace = TRUE, set.seed(123))
+
+forestSelect5 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 5, do.trace = TRUE, set.seed(123))
+
+forestSelect6 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 6, do.trace = TRUE, set.seed(123))
+
+forestSelect7 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 7, do.trace = TRUE, set.seed(123))
+
+forestSelect8 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 8, do.trace = TRUE, set.seed(123))
+
+forestSelect9 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 9, do.trace = TRUE, set.seed(123))
+
+forestSelect10 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 10, do.trace = TRUE, set.seed(123))
+
+forestSelect11 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 11, do.trace = TRUE, set.seed(123))
+
+forestSelect12 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 12, do.trace = TRUE, set.seed(123))
+
+forestSelect13 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 13, do.trace = TRUE, set.seed(123))
+
+forestSelect14 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 14, do.trace = TRUE, set.seed(123))
+
+forestSelect15 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 15, do.trace = TRUE, set.seed(123))
+
+```
+Testing---forestSelect4
+```{r}
+project.pred = predict(forestSelect4, numericTestSelected)
+head(project.pred)
+#with(numericTestSelected, table(project.pred, time.HW))
+
+table(observed = numericTestSelected[, "time.HW"], predicted = project.pred)
+
+Accuracy = (557 + 88 + 16)/(557 + 213 + 103 + 53 + 88 + 40 + 7 + 15 + 16) = 0.6053114
+```
+
+```{r}
+SelectDf <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+                  OOBError = c(40.52, 40.52, 40.68, 40.41, 40.56, 40.6, 40.96, 41.39, 41.43, 40.99, 41.62, 41.23, 42.09, 42.09, 41.78)
+                  )
+
+AccuracyPlotSelect = ggplot(SelectDf, aes(x=mtry, y=OOBError, label=OOBError)) +
+  geom_point(size=2, shape=1, stroke = 1) +
+  geom_text(hjust=1.2, vjust=0) +
+  scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "Out of Bag Error (%)") +
+  coord_cartesian(xlim=c(0.5,15)) +
+  ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (All Variables)") 
+
+AccuracyPlotSelect
+```
