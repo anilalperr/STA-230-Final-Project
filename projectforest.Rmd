@@ -1,6 +1,6 @@
 ---
 title: "Pre-Analysis Final Project Testing"
-author: "Ellis Chen"
+author: "Anil Alper, Ellis Chen, Laura Kiely, and Alex Porter"
 date: "5/4/2022"
 output: html_document
 ---
@@ -12,13 +12,13 @@ library(corrplot)
 library(ggplot2)
 library(caret)
 library(tree)
+library(datasets)
 ```
 
 ```{r}
-project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
-project_data = dplyr::select(project_data, gender, time.work, time.HW, friends, safe, home.happy, best.school, grades, home.al.drug, time.no.adult, home.chores, home.support)
-
-project_data[is.na(project_data)] = "Not found"
+original_data = read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c("-1","NA"))
+project_data = dplyr::select(project_data, gender, time.reading, time.HW, grade, time.no.adult, time.noschool.act, time.school.act)
 
 #Response Variables
 #1. time HW: grade, 
@@ -32,94 +32,75 @@ project_data[project_data == "1-2 hours"] = "2 or less hours"
 project_data[project_data == "0 hours"] = "2 or less hours"
 project_data[project_data == "6-10 hours"] = "6 or more hours"
 project_data[project_data == "11 or more hours"] = "6 or more hours"
-
 project_data[project_data == "Strongly agree"] = "Agree"
 project_data[project_data == "Strongly disagree"] = "Disagree"
 ```
 
 ```{R}
 set.seed(123)
-#sub_project_data = dplyr::select(project_data, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
-
-#sub_project_data = na.omit(sub_project_data)
-
 trainIndex = createDataPartition(project_data$time.HW, p = 0.7, list = FALSE, times=1)
-
 projectTrain = project_data[trainIndex,]
-
 projectTest = project_data[-trainIndex,]
-
-#project.model = train(time.HW ~., data=projectTrain, ntree=100)
-
-#project.pred = predict(project.model, projectTest)
-#with(projectTest, table(project.pred, time.HW))
-
+project.model = train(time.HW ~., data=projectTrain, ntree=10)
+project.pred = predict(project.model, projectTest)
+with(projectTest, table(project.pred, time.HW))
 ```
 
-```{r}
-numeric_data = project_data
-numeric_data = transform(numeric_data, gender = factor(gender, 
-       levels = c("Male", "Female"),
-       labels = c(0, 1)))
-numeric_data = transform(numeric_data, time.work = factor(time.work, 
-       levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
-       labels = c(2, 4, 6, -1)))
-
-numeric_data = transform(numeric_data, time.HW = factor(time.HW, 
-       levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
-       labels = c(2, 4, 6, -1)))
-
-numeric_data = transform(numeric_data, time.work = factor(friends, 
-       levels = c("Agree", "Disagree", "Not found"),
-       labels = c(1, 0, -1)))
-
-numeric_data = transform(numeric_data, safe = factor(safe, 
-       levels = c("Agree", "Disagree", "Not found"),
-       labels = c(1, 0, -1)))
-
-numeric_data = transform(numeric_data, home.happy = factor(home.happy, 
-       levels = c("Agree", "Disagree", "Not found"),
-       labels = c(1, 0, -1)))
-
-numeric_data = transform(numeric_data, friends = factor(friends, 
-       levels = c("Agree", "Disagree", "Not found"),
-       labels = c(1, 0, -1)))
-
-numeric_data = transform(numeric_data, best.school = factor(best.school, 
-       levels = c("Agree", "Disagree", "Not found"),
-       labels = c(1, 0, -1)))
-
-numeric_data = transform(numeric_data, grades = factor(grades, 
-       levels = c("Average", "Above average", "Excellent", "Below average", "Not found"),
-       labels = c(1, 2, 3, 0, -1)))
-
-numeric_data = transform(numeric_data, home.al.drug = factor(home.al.drug, 
-       levels = c("Agree", "Disagree", "Not found"),
-       labels = c(1, 0, -1)))
-
-numeric_data = transform(numeric_data, time.no.adult = factor(time.no.adult, 
-       levels = c("2 or less hours", "3-5 hours", "6 or more hours", "Not found"),
-       labels = c(2, 4, 6, -1)))
-
-numeric_data = transform(numeric_data, home.support = factor(home.support, 
-       levels = c("Agree", "Disagree", "Not found"),
-       labels = c(1, 0, -1)))
-
-numeric_data = transform(numeric_data, home.chores = factor(home.chores, 
-       levels = c("Never", "Sometimes", "Often", "Always", "Not found"),
-       labels = c(0, 1, 2, 3, -1)))
-
-numeric_data[is.na(numeric_data)] = -1
-
+```{R}
+set.seed(123)
+project_data = read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+project_data[project_data == "1-2 hours"] = "2 or less hours"
+project_data[project_data == "0 hours"] = "2 or less hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
+project_data[project_data == "Strongly agree"] = "Agree"
+project_data[project_data == "Strongly disagree"] = "Disagree"
+sub_project_data = dplyr::select(project_data, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
+trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
+projectTrain = sub_project_data[trainIndex,]
+projectTest = sub_project_data[-trainIndex,]
+project.model = train(time.HW ~., data=projectTrain, ntree=100)
+project.pred = predict(project.model, projectTest)
+with(projectTest, table(project.pred, time.HW))
 ```
 
-```{r}
-trainIndex = createDataPartition(numeric_data$time.HW, p = 0.7, list = FALSE, times=1)
-
-numericTrain = numeric_data[trainIndex,]
-
-forest = randomForest(time.HW ~., data = numericTrain, importance = TRUE, ntree = 10, mtry = 2, do.trace = TRUE)
-
+```{R}
+# With NA values
+set.seed(123)
+project_data = read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+project_data[project_data == "1-2 hours"] = "2 or less hours"
+project_data[project_data == "0 hours"] = "2 or less hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
+project_data = subset(project_data, !is.na(time.HW))
+project_data[project_data == "Strongly agree"] = "Agree"
+project_data[project_data == "Strongly disagree"] = "Disagree"
+sub_project_data = dplyr::select(project_data, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
+trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
+projectTrain = sub_project_data[trainIndex,]
+projectTrain$time.HW = factor(projectTrain$time.HW) 
+forest = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
 varImpPlot(forest, sort=TRUE)
 ```
 
+```{R}
+# Without NA Values
+set.seed(123)
+project_data = read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+project_data[project_data == "1-2 hours"] = "2 or less hours"
+project_data[project_data == "0 hours"] = "2 or less hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
+project_data[project_data == "-1"] = NA
+project_data[project_data == "Strongly agree"] = "Agree"
+project_data[project_data == "Strongly disagree"] = "Disagree"
+sub_project_data = dplyr::select(project_data, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
+sub_project_data = na.omit(sub_project_data)
+trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
+projectTrain = sub_project_data[trainIndex,]
+projectTrain$time.HW = factor(projectTrain$time.HW) 
+forest2 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
+forest4 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 4, do.trace = TRUE)
+forest6 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 6, do.trace = TRUE)
+varImpPlot(forest, sort=TRUE)
+```
