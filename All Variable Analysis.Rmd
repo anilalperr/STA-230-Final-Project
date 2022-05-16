@@ -74,7 +74,7 @@ forestAll15 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE
 
 ```
 Plotting Accuracy 
-```{r}
+```{r, fig.height=3.5}
 AllDf <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
                   OOBError = c(43.5, 41.82, 41.31, 41.15, 41.03, 41.15, 40.88, 41.11, 40.76, 41.11, 41.43, 41.5, 41.62, 40.84, 41.97)
                   )
@@ -88,6 +88,8 @@ AccuracyPlotAll = ggplot(AllDf, aes(x=mtry, y=OOBError, label=OOBError)) +
   ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (All Variables)") 
 
 AccuracyPlotAll
+
+varImpPlot(forestAll9)
 ```
 AUC Plot
 ```{r}
@@ -166,7 +168,7 @@ AUCPlotAll = ggplot(AucdfAll, aes(x=mtry, y=MulticlassAUC)) +
   ggtitle("AUC and Number of Variables Sampled at Splits, All") 
 
 AUCPlotAll
-print("How is this possible?")
+
 ```
 Selected Variables
 ```{r}
@@ -207,14 +209,29 @@ forestSelect15 = randomForest(time.HW ~., data = numericTrainSelected, importanc
 
 ```
 Testing---forestSelect4
-```{r}
+```{r, fig.height=3.5}
 project.pred = predict(forestSelect4, numericTestSelected)
 head(project.pred)
 #with(numericTestSelected, table(project.pred, time.HW))
 
 table(observed = numericTestSelected[, "time.HW"], predicted = project.pred)
 
-Accuracy = (557 + 88 + 16)/(557 + 213 + 103 + 53 + 88 + 40 + 7 + 15 + 16) = 0.6053114
+#Accuracy = (557 + 88 + 16)/(557 + 213 + 103 + 53 + 88 + 40 + 7 + 15 + 16) = 0.6053114
+
+#Test AUC
+hw.pred.prob.4 <- predict(forestSelect4, numericTestSelected, type="prob")
+test_AUC4 <- multiclass.roc(numericTestSelected$time.HW, hw.pred.prob.4, percent=TRUE)
+test_AUC4
+# = 65.21
+
+#Train AUC
+hw.pred.prob.train <- predict(forestSelect4, numericTrainSelected, type="prob")
+test_AUC_train <- multiclass.roc(numericTrainSelected$time.HW, hw.pred.prob.train, percent=TRUE)
+test_AUC_train
+
+#Manual
+
+varImpPlot(forestSelect4)
 ```
 
 ```{r}
@@ -224,11 +241,78 @@ SelectDf <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 
 
 AccuracyPlotSelect = ggplot(SelectDf, aes(x=mtry, y=OOBError, label=OOBError)) +
   geom_point(size=2, shape=1, stroke = 1) +
-  geom_text(hjust=1.2, vjust=0) +
+  geom_text(hjust=.5, vjust=-.7) +
   scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
   scale_y_continuous(name = "Out of Bag Error (%)") +
   coord_cartesian(xlim=c(0.5,15)) +
   ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (All Variables)") 
 
 AccuracyPlotSelect
+```
+AUC PLot Select
+```{r}
+
+predictionsSel1 <- predict(forestSelect1, numericTrainSelected, type = 'prob')
+roc.multiSel1 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel1, percent=FALSE)
+
+predictionsSel2 <- predict(forestSelect2, numericTrainSelected, type = 'prob')
+roc.multiSel2 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel2, percent=TRUE)
+
+predictionsSel3 <- predict(forestSelect3, numericTrainSelected, type = 'prob')
+roc.multiSel3 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel3, percent=TRUE)
+
+predictionsSel4 <- predict(forestSelect4, numericTrainSelected, type = 'prob')
+roc.multiSel4 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel4, percent=TRUE)
+
+predictionsSel5 <- predict(forestSelect5, numericTrainSelected, type = 'prob')
+roc.multiSel5 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel5, percent=TRUE)
+
+predictionsSel6 <- predict(forestSelect6, numericTrainSelected, type = 'prob')
+roc.multiSel6 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel6, percent=TRUE)
+
+predictionsSel7 <- predict(forestSelect7, numericTrainSelected, type = 'prob')
+roc.multiSel7 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel7, percent=TRUE)
+
+predictionsSel8 <- predict(forestSelect8, numericTrainSelected, type = 'prob')
+roc.multiSel8 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel8, percent=TRUE)
+
+predictionsSel9 <- predict(forestSelect9, numericTrainSelected, type = 'prob')
+roc.multiSel9 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel9, percent=TRUE)
+
+predictionsSel10 <- predict(forestSelect10, numericTrainSelected, type = 'prob')
+roc.multiSel10 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel10, percent=TRUE)
+
+predictionsSel11 <-predict(forestSelect11, numericTrainSelected, type = 'prob')
+roc.multiSel11 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel11, percent=TRUE)
+
+predictionsSel12 <- predict(forestSelect12, numericTrainSelected, type = 'prob')
+roc.multiSel12 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel12, percent=TRUE)
+
+predictionsSel13 <- predict(forestSelect13, numericTrainSelected, type = 'prob')
+roc.multiSel13 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel13, percent=TRUE)
+
+predictionsSel14 <-predict(forestSelect14, numericTrainSelected, type = 'prob')
+roc.multiSel14 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel14, percent=TRUE)
+
+predictionsSel15 <- predict(forestSelect15, numericTrainSelected, type = 'prob')
+roc.multiSel15 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel15, percent=TRUE)
+
+
+AucdfSel <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+                  MulticlassAUC = c(roc.multiSel1$auc, roc.multiSel2$auc, roc.multiSel3$auc, roc.multiSel4$auc, roc.multiSel5$auc, roc.multiSel6$auc, roc.multiSel7$auc, roc.multiSel8$auc, roc.multiSel9$auc, roc.multiSel10$auc, roc.multiSel11$auc, roc.multiSel12$auc, roc.multiSel13$auc, roc.multiSel14$auc, roc.multiSel15$auc)
+                  )
+AucdfSel
+
+AucdfSel = ggplot(AucdfSel, aes(x=mtry, y=MulticlassAUC)) +
+  geom_point(size=2, shape=1, stroke = 1) +
+  #geom_text(hjust=.5, vjust=1) +
+  scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "AUC") +
+  coord_cartesian(xlim=c(0.5,15)) +
+  ggtitle("AUC and Number of Variables Sampled at Splits, All") 
+
+AucdfSel
+```
+wtf
+```{r}
 ```
