@@ -27,6 +27,7 @@ project_data[project_data == "6-10 hours"] = "6 or more hours"
 project_data[project_data == "11 or more hours"] = "6 or more hours"
 project_data[project_data == "Strongly agree"] = "Agree"
 project_data[project_data == "Strongly disagree"] = "Disagree"
+project_data[project_data == "-1"] = NA
 
 #Stacked bar charts
 #Change the second parameter of count and fill= command to print out different variables
