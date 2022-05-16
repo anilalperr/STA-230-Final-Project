@@ -363,7 +363,7 @@ project_data[project_data == "11 or more hours"] = "6 or more hours"
 project_data = subset(project_data, !is.na(time.HW))
 project_data[project_data == "Strongly agree"] = "Agree"
 project_data[project_data == "Strongly disagree"] = "Disagree"
-sub_project_data = dplyr::select(project_data, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
+sub_project_data = dplyr::select(project_data, gender, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
 trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
 projectTrain = sub_project_data[trainIndex,]
 projectTrain$time.HW = factor(projectTrain$time.HW) 
@@ -383,7 +383,7 @@ project_data[project_data == "11 or more hours"] = "6 or more hours"
 project_data[project_data == "-1"] = NA
 project_data[project_data == "Strongly agree"] = "Agree"
 project_data[project_data == "Strongly disagree"] = "Disagree"
-sub_project_data = dplyr::select(project_data, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
+sub_project_data = dplyr::select(project_data, gender, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
 sub_project_data = na.omit(sub_project_data)
 trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
 projectTrain = sub_project_data[trainIndex,]
