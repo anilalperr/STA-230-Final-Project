@@ -239,7 +239,9 @@ geom_col(width = .7) +
 geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
 ```
 
+Variable importance analysis 
 ```{r}
+# All variables
 project_data_all <- read.csv("~/Downloads/STA-230-Final-Project-main 11/C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
 project_data_all[project_data_all == "1-2 hours"] = "2 or less hours"
 project_data_all[project_data_all == "0 hours"] = "2 or less hours"
