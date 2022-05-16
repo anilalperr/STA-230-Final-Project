@@ -416,7 +416,6 @@ forestSelect13 = randomForest(time.HW ~., data = numericTrainSelected, importanc
 forestSelect14 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 14, do.trace = TRUE, set.seed(123))
 forestSelect15 = randomForest(time.HW ~., data = numericTrainSelected, importance = TRUE, ntree = 1000, mtry = 15, do.trace = TRUE, set.seed(123))
 ```
-```
 Testing---forestSelect4
 ```{r, fig.height=3.5}
 project.pred = predict(forestSelect4, numericTestSelected)
