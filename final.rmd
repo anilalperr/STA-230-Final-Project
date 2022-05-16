@@ -18,6 +18,7 @@ library(pROC)
 library(tidyr)
 ```
 
+Stacked Bar Charts
 ```{r}
 project_data <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
 
@@ -28,9 +29,6 @@ project_data[project_data == "11 or more hours"] = "6 or more hours"
 project_data[project_data == "Strongly agree"] = "Agree"
 project_data[project_data == "Strongly disagree"] = "Disagree"
 project_data[project_data == "-1"] = NA
-
-#Stacked bar charts
-#Change the second parameter of count and fill= command to print out different variables
 
 #Time.HW vs Grade
 d = project_data %>% dplyr::count(time.HW, grade) %>% group_by(time.HW)
@@ -239,9 +237,10 @@ geom_col(width = .7) +
 geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size = 3.5) 
 ```
 
-Variable importance analysis 
+Variable importance analysis
+Model A: All Variables
 ```{r}
-# All variables
+# All Variables
 project_data_all <- read.csv("~/Downloads/STA-230-Final-Project-main 11/C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
 project_data_all[project_data_all == "1-2 hours"] = "2 or less hours"
 project_data_all[project_data_all == "0 hours"] = "2 or less hours"
@@ -351,7 +350,52 @@ AUCPlotAll = ggplot(AucdfAll, aes(x=mtry, y=MulticlassAUC)) +
 AUCPlotAll
 print("How is this possible?")
 ```
-Selected Variables
+
+Model B: Manually-Selected Variables With NA Values
+```{r}
+# With NA values
+set.seed(123)
+project_data = read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+project_data[project_data == "1-2 hours"] = "2 or less hours"
+project_data[project_data == "0 hours"] = "2 or less hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
+project_data = subset(project_data, !is.na(time.HW))
+project_data[project_data == "Strongly agree"] = "Agree"
+project_data[project_data == "Strongly disagree"] = "Disagree"
+sub_project_data = dplyr::select(project_data, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
+trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
+projectTrain = sub_project_data[trainIndex,]
+projectTrain$time.HW = factor(projectTrain$time.HW) 
+forest = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
+varImpPlot(forest, sort=TRUE)
+```
+
+Model C: Manually-Selected Variables Without NA Values
+```{R}
+# Without NA Values
+set.seed(123)
+project_data = read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
+project_data[project_data == "1-2 hours"] = "2 or less hours"
+project_data[project_data == "0 hours"] = "2 or less hours"
+project_data[project_data == "6-10 hours"] = "6 or more hours"
+project_data[project_data == "11 or more hours"] = "6 or more hours"
+project_data[project_data == "-1"] = NA
+project_data[project_data == "Strongly agree"] = "Agree"
+project_data[project_data == "Strongly disagree"] = "Disagree"
+sub_project_data = dplyr::select(project_data, time.work, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
+sub_project_data = na.omit(sub_project_data)
+trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
+projectTrain = sub_project_data[trainIndex,]
+projectTrain$time.HW = factor(projectTrain$time.HW) 
+forest2 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
+forest4 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 4, do.trace = TRUE)
+forest6 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 6, do.trace = TRUE)
+varImpPlot(forest, sort=TRUE)
+```
+
+
+Model D: Newly-Selected Variables With NA Values
 ```{r}
 # With NA values
 numericTrainSelected = select(numericTrainAll, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
@@ -406,7 +450,7 @@ AccuracyPlotSelect = ggplot(SelectDf, aes(x=mtry, y=OOBError, label=OOBError)) +
   ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (All Variables)") 
 AccuracyPlotSelect
 ```
-AUC PLot Select
+AUC Plot Select
 ```{r}
 predictionsSel1 <- predict(forestSelect1, numericTrainSelected, type = 'prob')
 roc.multiSel1 <- multiclass.roc(numericTrainSelected$time.HW, predictionsSel1, percent=FALSE)
@@ -452,6 +496,7 @@ AucdfSel = ggplot(AucdfSel, aes(x=mtry, y=MulticlassAUC)) +
 AucdfSel
 ```
 
+Model E: Newly-Selected Variables Without NA Values
 ```{R}
 # Without NA Values
 set.seed(123)
