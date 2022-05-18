@@ -1,0 +1,76 @@
+---
+title: "All Variable Analysis"
+output: html_document
+date: '2022-05-13'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(corrplot)
+library(ggplot2)
+library(tree)
+library(datasets)
+library(randomForest)
+library(pROC)
+library(tidyr)
+library(caret)
+```
+
+```{r}
+project_data_all <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
+project_data_all = select(project_data_all, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
+project_data_all[project_data_all == "1-2 hours"] = "few"
+project_data_all[project_data_all == "0 hours"] = "few"
+project_data_all[project_data_all == "6-10 hours"] = "lot"
+project_data_all[project_data_all == "11 or more hours"] = "lot"
+project_data_all[project_data_all == "3-5 hours"] = "more"
+project_data_all = subset(project_data_all, !is.na(time.HW))
+project_data_all[is.na(project_data_all)] = "NA"
+```
+
+```{r}
+project_data_all$time.HW = factor(project_data_all$time.HW)
+set.seed(123)
+trainIndex = createDataPartition(project_data_all$time.HW, p = 0.7, list = FALSE, times=1)
+numericTrainAll = project_data_all[trainIndex,]
+numericTestAll = project_data_all[-trainIndex,]
+forest4 = train(time.HW ~., data = numericTrainAll)
+# few vs lot 
+pred = predict(forest4, numericTestAll, type = "prob")
+res = roc(numericTestAll$time.HW, pred$few)
+plot(res, print.thres="best", print.thres.best.method="closest.topleft", print.auc = TRUE, main = "Prediction on 2 hours or less and 6 hours or more")
+```
+
+
+```{r}
+# more vs lot 
+pred = predict(forest4, numericTestAll, type = "prob")
+res2 = roc(numericTestAll$time.HW, pred$more)
+res2
+plot(res2, print.thres="best", print.thres.best.method="closest.topleft", print.auc = TRUE, main = "Prediction on 3-5 hours and 6 hours or more")
+```
+
+
+```{r}
+project_data_all <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
+project_data_all = select(project_data_all, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
+project_data_all[project_data_all == "1-2 hours"] = "few"
+project_data_all[project_data_all == "0 hours"] = "few"
+project_data_all[project_data_all == "6-10 hours"] = "lot"
+project_data_all[project_data_all == "11 or more hours"] = "lot"
+project_data_all[project_data_all == "3-5 hours"] = "more"
+project_data_all = subset(project_data_all, !is.na(time.HW))
+project_data_all[is.na(project_data_all)] = "NA"
+project_data_all = project_data_all[project_data_all$time.HW == "more" | project_data_all$time.HW == "few",]
+project_data_all$time.HW = factor(project_data_all$time.HW)
+set.seed(123)
+trainIndex = createDataPartition(project_data_all$time.HW, p = 0.7, list = FALSE, times=1)
+numericTrainAll = project_data_all[trainIndex,]
+numericTestAll = project_data_all[-trainIndex,]
+forest4 = train(time.HW ~., data = numericTrainAll)
+# more vs few 
+pred = predict(forest4, numericTestAll, type = "prob")
+res3 = roc(numericTestAll$time.HW, pred$more)
+plot(res3, print.thres="best", print.thres.best.method="closest.topleft", print.auc = TRUE, main = "Prediction on 2 hours or less and 3-5 hours")
+```
