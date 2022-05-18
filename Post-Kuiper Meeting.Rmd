@@ -14,6 +14,7 @@ library(datasets)
 library(randomForest)
 library(pROC)
 library(tidyr)
+library(caret)
 ```
 
 ```{r}
@@ -100,9 +101,16 @@ Plotting Accuracy
 SelectErrorTotal <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
                   OOBError = c(35.1, 33.61, 34.16, 34, 34.47, 33.96, 34.78, 34.31, 35.29, 34.98, 35.14, 34.74, 34.43, 34.47, 34.39))
 
-AccuracyPlotAll = ggplot(SelectErrorTotal, aes(x=mtry, y=OOBError, label=OOBError)) +
-  geom_point(size=2, shape=1, stroke = 1) +
-  geom_text(hjust=1.25, vjust=0) +
+# AccuracyPlotAll = ggplot(SelectErrorTotal, aes(x=mtry, y=OOBError, label=OOBError)) +
+#   geom_point(size=2, shape=1, stroke = 1) +
+#   geom_text(hjust=1.25, vjust=0) +
+#   scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
+#   scale_y_continuous(name = "Out of Bag Error (%)") +
+#   coord_cartesian(xlim=c(0.5,15)) +
+#   ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (30 Variables)") 
+AccuracyPlotAll = ggplot(SelectErrorTotal, aes(x=mtry, y=OOBError)) +
+  geom_point(size=4, shape=1, stroke = 1) +
+    theme(text = element_text(size = 17)) +
   scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
   scale_y_continuous(name = "Out of Bag Error (%)") +
   coord_cartesian(xlim=c(0.5,15)) +
@@ -204,9 +212,55 @@ plot(rf.roc5, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 
 plot(rf.roc6, print.thres = "best", print.auc = TRUE, print.auc.x = .5, print.auc.y = .4, main = "ROC Curve: mtry = 6")
 
 ```
+Using Optimal Training Threshold
+```{r}
+probsTest <- predict(forestAll2, numericTestAll, type = "prob")
+probsTest = as.data.frame(probsTest)
+probsTest1 = select(probsTest, '2 or less hours')
+threshold <- .451
+Logit1.pred_redo <- as.factor(ifelse(probsTest1$'2 or less hours' > threshold, "2 or less hours", "more than 2 hours"))
+x = as.factor(numericTestAll$time.HW)
+confusionMatrix(Logit1.pred_redo, x)
+```
+
+```{r}
+probsTrain <- predict(forestAll2, numericTrainAll, type = "prob")
+probsTrain = as.data.frame(probsTrain)
+probsTrain1 = select(probsTrain, '2 or less hours')
+threshold <- .451
+#0 is two or more; 1 is two or less
+Logit2.pred_redo <- as.factor(ifelse(probsTrain1$'2 or less hours' > threshold, "2 or less hours", "more than 2 hours"))
+y = as.factor(numericTrainAll$time.HW)
+confusionMatrix(Logit2.pred_redo, y)
+```
+
+```{r}
+datafactor = as.f
+```
+
+```{r}
+table(fav_data)
+table(TIMEHW)
+```
 ROC---Testing---??
 ```{r}
 #Creating ROC from testing dataset and forest models
+
+rf.roc2 <-roc (numericTestAll$time.HW, forestAll2$votes[,2])
+test2ROC <- predict(forestAll2, numericTestAll, type ="response")
+
+
+
+#Creating ROC from training dataset and forest models
+rf.roc2 <-roc(numericTestAll$time.HW, test2ROC$V1)
+
+#Printing ROC Plots Together, with optimal threshold and AUC
+plot(rf.roc1, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 1")
+plot(rf.roc2, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 2")
+plot(rf.roc3, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 3")
+plot(rf.roc4, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 4")
+plot(rf.roc5, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 5")
+plot(rf.roc6, print.thres = "best", print.auc = TRUE, print.auc.x = .5, print.auc.y = .4, main = "ROC Curve: mtry = 6")
 
 ```
 
