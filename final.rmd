@@ -288,6 +288,7 @@ AccuracyPlotAll = ggplot(AllDf, aes(x=mtry, y=OOBError, label=OOBError)) +
   coord_cartesian(xlim=c(0.5,15)) +
   ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (All Variables)") 
 AccuracyPlotAll
+varImpPlot(forestAll9)
 ```
 
 Group 2: Newly-Selected Variables
