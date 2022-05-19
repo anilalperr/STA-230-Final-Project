@@ -238,7 +238,7 @@ geom_text(aes(label = percentages), position = position_stack(vjust = 0.5), size
 ```
 
 Variable importance analysis
-Model A: All Variables
+Group 1: All Variables
 ```{r}
 # All Variables
 project_data_all <- read.csv("~/Downloads/STA-230-Final-Project-main 11/C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
@@ -289,113 +289,8 @@ AccuracyPlotAll = ggplot(AllDf, aes(x=mtry, y=OOBError, label=OOBError)) +
   ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (All Variables)") 
 AccuracyPlotAll
 ```
-AUC Plot
-```{r}
-predictionsAll1 <- as.numeric(predict(forestAll1, numericTrainAll, type = 'response'))
-roc.multiAll1 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll1, 
-                            percent=TRUE)
-predictionsAll2 <- as.numeric(predict(forestAll2, numericTrainAll, type = 'response'))
-roc.multiAll2 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll2, 
-                            percent=TRUE)
-predictionsAll3 <- as.numeric(predict(forestAll3, numericTrainAll, type = 'response'))
-roc.multiAll3 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll3, 
-                            percent=TRUE)
-predictionsAll4 <- as.numeric(predict(forestAll4, numericTrainAll, type = 'response'))
-roc.multiAll4 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll4, 
-                            percent=TRUE)
-predictionsAll5 <- as.numeric(predict(forestAll5, numericTrainAll, type = 'response'))
-roc.multiAll5 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll5, 
-                            percent=TRUE)
-predictionsAll6 <- as.numeric(predict(forestAll6, numericTrainAll, type = 'response'))
-roc.multiAll6 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll6, 
-                            percent=TRUE)
-predictionsAll7 <- as.numeric(predict(forestAll7, numericTrainAll, type = 'response'))
-roc.multiAll7 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll7, 
-                            percent=TRUE)
-predictionsAll8 <- as.numeric(predict(forestAll8, numericTrainAll, type = 'response'))
-roc.multiAll8 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll8, 
-                            percent=TRUE)
-predictionsAll9 <- as.numeric(predict(forestAll9, numericTrainAll, type = 'response'))
-roc.multiAll9 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll9, 
-                            percent=TRUE)
-predictionsAll10 <- as.numeric(predict(forestAll10, numericTrainAll, type = 'response'))
-roc.multiAll10 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll10, 
-                            percent=TRUE)
-predictionsAll11 <- as.numeric(predict(forestAll11, numericTrainAll, type = 'response'))
-roc.multiAll11 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll11, 
-                            percent=TRUE)
-predictionsAll12 <- as.numeric(predict(forestAll12, numericTrainAll, type = 'response'))
-roc.multiAll12 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll12, 
-                            percent=TRUE)
-predictionsAll13 <- as.numeric(predict(forestAll13, numericTrainAll, type = 'response'))
-roc.multiAll13 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll13, 
-                            percent=TRUE)
-predictionsAll14 <- as.numeric(predict(forestAll14, numericTrainAll, type = 'response'))
-roc.multiAll14 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll14, 
-                            percent=TRUE)
-predictionsAll15 <- as.numeric(predict(forestAll15, numericTrainAll, type = 'response'))
-roc.multiAll15 <- multiclass.roc(numericTrainAll$time.HW, predictionsAll15, 
-                            percent=TRUE)
-AucdfAll <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-                  MulticlassAUC = c(roc.multiAll1$auc, roc.multiAll2$auc, roc.multiAll3$auc, roc.multiAll4$auc, roc.multiAll5$auc, roc.multiAll6$auc, roc.multiAll7$auc, roc.multiAll8$auc, roc.multiAll9$auc, roc.multiAll10$auc, roc.multiAll11$auc, roc.multiAll12$auc, roc.multiAll13$auc, roc.multiAll14$auc, roc.multiAll15$auc)
-                  )
-AucdfAll
-AUCPlotAll = ggplot(AucdfAll, aes(x=mtry, y=MulticlassAUC)) +
-  geom_point(size=2, shape=1, stroke = 1) +
-  #geom_text(hjust=.5, vjust=1) +
-  scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
-  scale_y_continuous(name = "AUC") +
-  coord_cartesian(xlim=c(0.5,15)) +
-  ggtitle("AUC and Number of Variables Sampled at Splits, All") 
-AUCPlotAll
-print("How is this possible?")
-```
 
-Model B: Manually-Selected Variables With NA Values
-```{r}
-# With NA values
-set.seed(123)
-project_data = read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
-project_data[project_data == "1-2 hours"] = "2 or less hours"
-project_data[project_data == "0 hours"] = "2 or less hours"
-project_data[project_data == "6-10 hours"] = "6 or more hours"
-project_data[project_data == "11 or more hours"] = "6 or more hours"
-project_data = subset(project_data, !is.na(time.HW))
-project_data[project_data == "Strongly agree"] = "Agree"
-project_data[project_data == "Strongly disagree"] = "Disagree"
-sub_project_data = dplyr::select(project_data, gender, grade, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
-trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
-projectTrain = sub_project_data[trainIndex,]
-projectTrain$time.HW = factor(projectTrain$time.HW) 
-forest = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
-varImpPlot(forest, sort=TRUE)
-```
-
-Model C: Manually-Selected Variables Without NA Values
-```{R}
-# Without NA Values
-set.seed(123)
-project_data = read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA"))
-project_data[project_data == "1-2 hours"] = "2 or less hours"
-project_data[project_data == "0 hours"] = "2 or less hours"
-project_data[project_data == "6-10 hours"] = "6 or more hours"
-project_data[project_data == "11 or more hours"] = "6 or more hours"
-project_data[project_data == "-1"] = NA
-project_data[project_data == "Strongly agree"] = "Agree"
-project_data[project_data == "Strongly disagree"] = "Disagree"
-sub_project_data = dplyr::select(project_data, gender, time.work, grade, time.no.adult, time.friend, time.school.act, time.reading, time.church, time.excersize, time.HW)
-sub_project_data = na.omit(sub_project_data)
-trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
-projectTrain = sub_project_data[trainIndex,]
-projectTrain$time.HW = factor(projectTrain$time.HW) 
-forest2 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
-forest4 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 4, do.trace = TRUE)
-forest6 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 6, do.trace = TRUE)
-varImpPlot(forest, sort=TRUE)
-```
-
-
-Model D: Newly-Selected Variables With NA Values
+Group 2: Newly-Selected Variables
 ```{r}
 # With NA values
 numericTrainSelected = select(numericTrainAll, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
@@ -495,32 +390,6 @@ AucdfSel = ggplot(AucdfSel, aes(x=mtry, y=MulticlassAUC)) +
 AucdfSel
 ```
 
-Model E: Newly-Selected Variables Without NA Values
-```{R}
-# Without NA Values
-set.seed(123)
-project_data = read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".", "NA"))
-project_data[project_data == "1-2 hours"] = "2 or less hours"
-project_data[project_data == "0 hours"] = "2 or less hours"
-project_data[project_data == "6-10 hours"] = "6 or more hours"
-project_data[project_data == "11 or more hours"] = "6 or more hours"
-project_data[project_data == "-1"] = NA
-project_data[project_data == "Strongly agree"] = "Agree"
-project_data[project_data == "Strongly disagree"] = "Disagree"
-sub_project_data = select(project_data, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
-sub_project_data = na.omit(sub_project_data)
-trainIndex = createDataPartition(sub_project_data$time.HW, p = 0.7, list = FALSE, times=1)
-projectTrain = sub_project_data[trainIndex,]
-projectTrain$time.HW = factor(projectTrain$time.HW) 
-forest2 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 2, do.trace = TRUE)
-forest3 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 3, do.trace = TRUE)
-forest4 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 4, do.trace = TRUE)
-forest5 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 5, do.trace = TRUE)
-forest6 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 6, do.trace = TRUE)
-forest7 = randomForest(time.HW ~., data = projectTrain, importance = TRUE, ntree = 100, mtry = 7, do.trace = TRUE)
-varImpPlot(forest, sort=TRUE)
-```
-
 Testing---forestSelect4
 ```{r}
 project.pred = predict(forestSelect4, numericTestSelected)
@@ -542,4 +411,261 @@ AccuracyPlotSelect = ggplot(SelectDf, aes(x=mtry, y=OOBError, label=OOBError)) +
   coord_cartesian(xlim=c(0.5,15)) +
   ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (All Variables)") 
 AccuracyPlotSelect
+```
+
+ROC with the original classifications
+```{r}
+project_data_all <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
+project_data_all = select(project_data_all, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
+project_data_all[project_data_all == "1-2 hours"] = "few"
+project_data_all[project_data_all == "0 hours"] = "few"
+project_data_all[project_data_all == "6-10 hours"] = "lot"
+project_data_all[project_data_all == "11 or more hours"] = "lot"
+project_data_all[project_data_all == "3-5 hours"] = "more"
+project_data_all = subset(project_data_all, !is.na(time.HW))
+project_data_all[is.na(project_data_all)] = "NA"
+```
+
+```{r}
+project_data_all$time.HW = factor(project_data_all$time.HW)
+set.seed(123)
+trainIndex = createDataPartition(project_data_all$time.HW, p = 0.7, list = FALSE, times=1)
+numericTrainAll = project_data_all[trainIndex,]
+numericTestAll = project_data_all[-trainIndex,]
+forest4 = train(time.HW ~., data = numericTrainAll)
+# few vs lot 
+pred = predict(forest4, numericTestAll, type = "prob")
+res = roc(numericTestAll$time.HW, pred$few)
+plot(res, print.thres="best", print.thres.best.method="closest.topleft", print.auc = TRUE, main = "Prediction on 2 hours or less and 6 hours or more")
+```
+
+
+```{r}
+# more vs lot 
+pred = predict(forest4, numericTestAll, type = "prob")
+res2 = roc(numericTestAll$time.HW, pred$more)
+res2
+plot(res2, print.thres="best", print.thres.best.method="closest.topleft", print.auc = TRUE, main = "Prediction on 3-5 hours and 6 hours or more")
+```
+
+
+```{r}
+project_data_all <- read.csv("C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
+project_data_all = select(project_data_all, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
+project_data_all[project_data_all == "1-2 hours"] = "few"
+project_data_all[project_data_all == "0 hours"] = "few"
+project_data_all[project_data_all == "6-10 hours"] = "lot"
+project_data_all[project_data_all == "11 or more hours"] = "lot"
+project_data_all[project_data_all == "3-5 hours"] = "more"
+project_data_all = subset(project_data_all, !is.na(time.HW))
+project_data_all[is.na(project_data_all)] = "NA"
+project_data_all = project_data_all[project_data_all$time.HW == "more" | project_data_all$time.HW == "few",]
+project_data_all$time.HW = factor(project_data_all$time.HW)
+set.seed(123)
+trainIndex = createDataPartition(project_data_all$time.HW, p = 0.7, list = FALSE, times=1)
+numericTrainAll = project_data_all[trainIndex,]
+numericTestAll = project_data_all[-trainIndex,]
+forest4 = train(time.HW ~., data = numericTrainAll)
+# more vs few 
+pred = predict(forest4, numericTestAll, type = "prob")
+res3 = roc(numericTestAll$time.HW, pred$more)
+plot(res3, print.thres="best", print.thres.best.method="closest.topleft", print.auc = TRUE, main = "Prediction on 2 hours or less and 3-5 hours")
+```
+
+Group 3: new classifications
+```{r}
+project_data_all <- read.csv("~/Downloads/STA-230-Final-Project-main 11/C7 IYSdata.csv", header=TRUE, na.strings=c(".","NA", "-1"))
+project_data_all = select(project_data_all, time.school.act, time.no.adult, age, grade, time.reading, time.friend, time.noschool.act, talk.adult, Pop.cig, home.know, time.work, best.school, gender, values.drug, time.church, home.chores, home.wrong, home.talk, Pop.drink, home.happy, home.al.drug, home.praise, excite, grades, Pop.marijuana, home.support, home.close, hard.work, X30dr.driving, Wpdrink, time.HW)
+project_data_all[project_data_all == "1-2 hours"] = "2 or less hours"
+project_data_all[project_data_all == "0 hours"] = "2 or less hours"
+project_data_all[project_data_all == "6-10 hours"] = "more than 2 hours"
+project_data_all[project_data_all == "11 or more hours"] = "more than 2 hours"
+project_data_all[project_data_all == "3-5 hours"] = "more than 2 hours"
+project_data_all = subset(project_data_all, !is.na(time.HW))
+project_data_all[is.na(project_data_all)] = "NA"
+```
+
+```{r}
+set.seed(123)
+trainIndex = createDataPartition(project_data_all$time.HW, p = 0.7, list = FALSE, times=1)
+numericTrainAll = project_data_all[trainIndex,]
+numericTestAll = project_data_all[-trainIndex,]
+```
+
+```{r}
+numericTrainAll$time.HW = factor(numericTrainAll$time.HW) 
+numericTestAll$time.HW = factor(numericTestAll$time.HW) 
+forestAll1 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 1, do.trace = TRUE, set.seed(123))
+forestAll2 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 2, do.trace = TRUE, set.seed(123))
+forestAll3 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 3, do.trace = TRUE, set.seed(123))
+forestAll4 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 4, do.trace = TRUE, set.seed(123))
+forestAll5 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 5, do.trace = TRUE, set.seed(123))
+forestAll6 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 6, do.trace = TRUE, set.seed(123))
+forestAll7 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 7, do.trace = TRUE, set.seed(123))
+forestAll8 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 8, do.trace = TRUE, set.seed(123))
+forestAll9 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 9, do.trace = TRUE, set.seed(123))
+forestAll10 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 10, do.trace = TRUE, set.seed(123))
+forestAll11 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 11, do.trace = TRUE, set.seed(123))
+forestAll12 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 12, do.trace = TRUE, set.seed(123))
+forestAll13 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 13, do.trace = TRUE, set.seed(123))
+forestAll14 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 14, do.trace = TRUE, set.seed(123))
+forestAll15 = randomForest(time.HW ~., data = numericTrainAll, importance = TRUE, ntree = 1000, mtry = 15, do.trace = TRUE, set.seed(123))
+```
+```{r}
+forestAll1
+forestAll2
+forestAll3
+forestAll4
+forestAll5
+forestAll6
+forestAll7
+forestAll8
+forestAll9
+forestAll10
+forestAll11
+forestAll12
+forestAll13
+forestAll14
+forestAll15
+```
+Plotting Accuracy 
+```{r, fig.height=3.5}
+#Creating Plot of mtry and error
+SelectErrorTotal <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+                  OOBError = c(35.1, 33.61, 34.16, 34, 34.47, 33.96, 34.78, 34.31, 35.29, 34.98, 35.14, 34.74, 34.43, 34.47, 34.39))
+# AccuracyPlotAll = ggplot(SelectErrorTotal, aes(x=mtry, y=OOBError, label=OOBError)) +
+#   geom_point(size=2, shape=1, stroke = 1) +
+#   geom_text(hjust=1.25, vjust=0) +
+#   scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
+#   scale_y_continuous(name = "Out of Bag Error (%)") +
+#   coord_cartesian(xlim=c(0.5,15)) +
+#   ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (30 Variables)") 
+AccuracyPlotAll = ggplot(SelectErrorTotal, aes(x=mtry, y=OOBError)) +
+  geom_point(size=4, shape=1, stroke = 1) +
+    theme(text = element_text(size = 17)) +
+  scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "Out of Bag Error (%)") +
+  coord_cartesian(xlim=c(0.5,15)) +
+  ggtitle("Out of Bag Error and Number of Variables Sampled at Splits (30 Variables)") 
+AccuracyPlotAll
+#Creating plot of mtry and class error 
+SelectError2less <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+                  OOBError = c(0.1144244, 0.1976422, 0.2212205, 0.2274619, 0.2350902, 0.2274619, 0.2392510,0.2309293,0.2482663,0.2489598,0.2496533,0.2441054,0.2413315,0.2510402,0.2427184 ))
+SelectError2more <- data.frame(mtry  = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+                  OOBError = c(0.6579658, 0.5157516, 0.4977498, 0.4860486, 0.4869487, 0.4851485, 0.4887489,0.4887489,0.4887489,0.4806481,0.4833483,0.4815482,0.4779478,0.4662466,0.4752475    ))
+AccuracyPlot2less = ggplot(SelectError2less, aes(x=mtry, y=OOBError)) +
+  geom_point(size=2, shape=1, stroke = 1) +
+  #geom_text(hjust=1.25, vjust=0) +
+  scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "Out of Bag Error") +
+  #coord_cartesian(xlim=c(0.5,15)) +
+  ggtitle("0-2 Class Error by # of Variables Sampled") 
+AccuracyPlot2more = ggplot(SelectError2more, aes(x=mtry, y=OOBError)) +
+  geom_point(size=2, shape=1, stroke = 1) +
+  #geom_text(hjust=1.25, vjust=0) +
+  scale_x_continuous(breaks = seq(-1, 15, by = 1), name = "Number of Variables") +
+  scale_y_continuous(name = "Out of Bag Error") +
+  #coord_cartesian(xlim=c(0.5,15)) +
+  ggtitle("2+ Class Error by # of Variables Sampled") 
+```
+```{r}
+AccuracyPlotAll
+AccuracyPlot2more
+AccuracyPlot2less
+```
+Confusion Matrix/Sensitivity/Specificity/Accuracy---Training
+```{r, fig.height=3.5}
+library(caret)
+p1 <- predict(forestAll1, numericTrainAll)
+confusionMatrix(p1, numericTrainAll$ time.HW)
+p2 <- predict(forestAll2, numericTrainAll)
+confusionMatrix(p2, numericTrainAll$ time.HW)
+p3 <- predict(forestAll3, numericTrainAll)
+confusionMatrix(p3, numericTrainAll$ time.HW)
+p4 <- predict(forestAll4, numericTrainAll)
+confusionMatrix(p4, numericTrainAll$ time.HW)
+p5 <- predict(forestAll5, numericTrainAll)
+confusionMatrix(p5, numericTrainAll$ time.HW)
+p6 <- predict(forestAll6, numericTrainAll)
+confusionMatrix(p6, numericTrainAll$ time.HW)
+```
+
+Confusion Matrix/Sensitivity/Accuracy---Testing
+```{r, fig.height=3.5}
+library(caret)
+test1 <- predict(forestAll1, numericTestAll)
+confusionMatrix(test1, numericTestAll$ time.HW)
+test2 <- predict(forestAll2, numericTestAll)
+confusionMatrix(test2, numericTestAll$ time.HW)
+test3 <- predict(forestAll3, numericTestAll)
+confusionMatrix(test3, numericTestAll$ time.HW)
+test4 <- predict(forestAll4, numericTestAll)
+confusionMatrix(test4, numericTestAll$ time.HW)
+test5 <- predict(forestAll5, numericTestAll)
+confusionMatrix(test5, numericTestAll$ time.HW)
+test6 <- predict(forestAll6, numericTestAll)
+confusionMatrix(test6, numericTestAll$ time.HW)
+```
+
+ROC---Training
+```{r}
+#Creating ROC from training dataset and forest models
+rf.roc1 <-roc (numericTrainAll$time.HW, forestAll1$votes[,2])
+rf.roc2 <-roc (numericTrainAll$time.HW, forestAll2$votes[,2])
+rf.roc3 <-roc (numericTrainAll$time.HW, forestAll3$votes[,2])
+rf.roc4 <-roc (numericTrainAll$time.HW, forestAll4$votes[,2])
+rf.roc5 <-roc (numericTrainAll$time.HW, forestAll5$votes[,2])
+rf.roc6 <-roc (numericTrainAll$time.HW, forestAll6$votes[,2])
+#Printing ROC Plots Together, with optimal threshold and AUC
+plot(rf.roc1, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 1")
+plot(rf.roc2, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 2")
+plot(rf.roc3, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 3")
+plot(rf.roc4, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 4")
+plot(rf.roc5, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 5")
+plot(rf.roc6, print.thres = "best", print.auc = TRUE, print.auc.x = .5, print.auc.y = .4, main = "ROC Curve: mtry = 6")
+```
+Using Optimal Training Threshold
+```{r}
+probsTest <- predict(forestAll2, numericTestAll, type = "prob")
+probsTest = as.data.frame(probsTest)
+probsTest1 = select(probsTest, '2 or less hours')
+threshold <- .451
+Logit1.pred_redo <- as.factor(ifelse(probsTest1$'2 or less hours' > threshold, "2 or less hours", "more than 2 hours"))
+x = as.factor(numericTestAll$time.HW)
+confusionMatrix(Logit1.pred_redo, x)
+```
+
+```{r}
+probsTrain <- predict(forestAll2, numericTrainAll, type = "prob")
+probsTrain = as.data.frame(probsTrain)
+probsTrain1 = select(probsTrain, '2 or less hours')
+threshold <- .451
+#0 is two or more; 1 is two or less
+Logit2.pred_redo <- as.factor(ifelse(probsTrain1$'2 or less hours' > threshold, "2 or less hours", "more than 2 hours"))
+y = as.factor(numericTrainAll$time.HW)
+confusionMatrix(Logit2.pred_redo, y)
+```
+
+```{r}
+datafactor = as.f
+```
+
+```{r}
+table(fav_data)
+table(TIMEHW)
+```
+ROC---Testing
+```{r}
+#Creating ROC from testing dataset and forest models
+rf.roc2 <-roc (numericTestAll$time.HW, forestAll2$votes[,2])
+test2ROC <- predict(forestAll2, numericTestAll, type ="response")
+#Creating ROC from training dataset and forest models
+rf.roc2 <-roc(numericTestAll$time.HW, test2ROC$V1)
+#Printing ROC Plots Together, with optimal threshold and AUC
+plot(rf.roc1, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 1")
+plot(rf.roc2, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 2")
+plot(rf.roc3, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 3")
+plot(rf.roc4, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 4")
+plot(rf.roc5, print.thres = "best", print.auc = TRUE, main = "ROC Curve: mtry = 5")
+plot(rf.roc6, print.thres = "best", print.auc = TRUE, print.auc.x = .5, print.auc.y = .4, main = "ROC Curve: mtry = 6")
 ```
